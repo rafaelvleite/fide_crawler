@@ -14,6 +14,11 @@ import socket
 from performanceCalculator import ratingPerformance
 import requests
 
+import warnings
+warnings.filterwarnings("ignore")
+
+pd.set_option('mode.chained_assignment', None)
+
 timeout_in_sec = 10 # 5 seconds timeout limit
 socket.setdefaulttimeout(timeout_in_sec)
 
