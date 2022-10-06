@@ -1,7 +1,5 @@
 import time
 from bs4 import BeautifulSoup
-from selenium import webdriver
-from webdriver_manager.chrome import ChromeDriverManager
 import pandas as pd
 from datetime import datetime
 from dateutil import relativedelta
@@ -14,7 +12,7 @@ from googleapiclient.discovery import build
 from retry import retry
 import socket
 from performanceCalculator import ratingPerformance
-
+import requests
 
 timeout_in_sec = 10 # 5 seconds timeout limit
 socket.setdefaulttimeout(timeout_in_sec)
@@ -42,36 +40,6 @@ while walkingDate <= endPeriodDate:
     fullDateRange.append(datetime.strftime(walkingDate, "%Y-%m-%d"))
     walkingDate = walkingDate + relativedelta.relativedelta(months=1)
 
-def instantiateDriver():
-    #####################
-    # Instantiate driver
-    print("Instantiating Chrome Browser...")
-    options = webdriver.ChromeOptions()
-    options.add_argument("start-maximized")
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
-    options.add_argument('--headless')
-    options.add_experimental_option("excludeSwitches", ["enable-automation"])
-    options.add_experimental_option('useAutomationExtension', False)
-    options.add_argument("--disable-popup-blocking")
-    prefs = {}
-    prefs["profile.default_content_settings.popups"] = 0
-    prefs["download.default_directory"] = os.getcwd()
-    prefs["credentials_enable_service"] = False
-    prefs["profile.password_manager_enabled"] = False
-    options.add_experimental_option("prefs", prefs)
-    
-    driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
-    driver.set_page_load_timeout(60)
-
-    print("Instantiating Chrome Browser done!")
-    time.sleep(2)
-    #####################
-    #####################
-    
-    return driver
-
-
 @retry(delay=10)
 def google_search(search_term, api_key=my_api_key, cse_id=my_cse_id, **kwargs):
     service = build("customsearch", "v1", developerKey=api_key)
@@ -87,15 +55,12 @@ playerDf = pd.DataFrame(columns = ['Date', 'Tournment Name', 'Player Rating', 'P
 
 allLinks = []
 for stringDate in fullDateRange:
-    allLinks.append("https://ratings.fide.com/calculations.phtml?id_number=" + FIDE_ID + "&period=" + stringDate + "&rating=0")
+    allLinks.append(
+        f"https://ratings.fide.com/a_indv_calculations.php?id_number={FIDE_ID}&rating_period={stringDate}&t=0")
+
 
 for link in allLinks:
-    print(link)
-    driver = instantiateDriver()
-    driver.get(link)
-    html=driver.execute_script('return document.querySelector(".section-profile").innerHTML')
-    driver.quit()
-    time.sleep(1)
+    html = requests.get(link).text
     parsed_html = BeautifulSoup(html,'html.parser')
     fullTable = parsed_html.find('table', attrs={'class':'calc_table'})
     if fullTable != None:
