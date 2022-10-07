@@ -1,0 +1,8 @@
+pandas
+gspread-dataframe
+oauth2client
+python-Levenshtein
+google-api-python-client
+retry
+lxml
+requests
