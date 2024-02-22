@@ -408,7 +408,7 @@ def plot_rating_time_series(games_df):
         plt.tight_layout()
         st.pyplot(plt)
     else:
-        st.subheader("Nenhum dado de rating disponível para plotar.")
+        st.write("Nenhum dado de rating disponível para plotar.")
 
 def clean_and_prepare_dataframe(df):
     if not df.empty:
@@ -643,7 +643,7 @@ if players and 'selected_option' in locals() and selected_option != "Selecione u
         st.table(filtered_games_history[['date', 'tournament_name', 'country', 'player_name', 'player_rating', 'player_color', 'opponent_name', 'opponent_rating', 'result', 'chg', 'k', 'k_chg']])
 
 else:
-    st.write("Nenhum jogo encontrado no período especificado.")
+    st.subheader("Nenhum jogo encontrado no período especificado.")
 
 # Seção de Mensagem Promocional
 st.sidebar.write("---")  # Desenha uma linha horizontal para separação visual
