@@ -644,7 +644,7 @@ Procurando elevar seu jogo de xadrez? Confira o [XB PRO](https://xadrezbrasil.co
 # Usando st.markdown para criar um link que parece um botão
 estilo_do_botao = """
 <a href='https://xadrezbrasil.com.br' target='_blank'>
-    <button style='color: white; background-color: #4CAF50; border: none; padding: 10px 20px; text-align: center; display: inline-block; tamanho da fonte: 16px; margem: 4px 2px; cursor: pointer; border-radius: 12px;'>
+    <button style='color: white; background-color: #4CAF50; border: none; padding: 10px 20px; text-align: center; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 12px;'>
         Visite o XB PRO Agora!
     </button>
 </a>
