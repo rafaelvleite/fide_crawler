@@ -241,7 +241,7 @@ def scrapePlayerGamesHistory(fide_id, playerName, startingPeriod, endPeriod):
         fullTable = parsed_html.find('table', attrs={'class': 'calc_table'})
         if fullTable is not None:
             tableDf = pd.read_html(fullTable.prettify())[0]
-            tableDf.drop(tableDf.index[tableDf['Unnamed: 0'] == "*  Diferença de classificação de mais de 400."], inplace=True)
+            tableDf.drop(tableDf.index[tableDf['Unnamed: 0'] == "*  Rating difference of more than 400."], inplace=True)
             tableDf.reset_index(inplace=True, drop=True)
             limiters = tableDf.isnull().all(1)
             limiters = limiters[limiters == True].index.values.tolist()
@@ -250,7 +250,7 @@ def scrapePlayerGamesHistory(fide_id, playerName, startingPeriod, endPeriod):
             
             for img_tag in colors:
                 src = img_tag.get('src')
-                color = 'branco' if 'clr_wh' in src else 'preto'
+                color = 'white' if 'clr_wh' in src else 'black'
                 retrievedColors.append(color)
             
             colorIndex = 0
@@ -419,7 +419,7 @@ def create_pie_chart(sizes, labels, title):
 # Função Aprimorada para Criar um Gráfico de Barras
 def create_enhanced_bar_chart(values, categories, title):
     fig, ax = plt.subplots(figsize=(16, 6))
-    colors = ['azul', 'laranja', 'verde', 'vermelho', 'roxo', 'marrom', 'rosa']
+    colors = ['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink']
     ax.bar(categories, values, color=colors)
     ax.set_ylabel('Classificação Média do Oponente')
     ax.set_title(title)
@@ -526,12 +526,12 @@ if players and 'selected_option' in locals() and selected_option != "Selecione u
         draw_count = len(player_games_history[player_games_history['result'] == 0.5])
         loss_count = len(player_games_history[player_games_history['result'] == 0.0])
 
-        games_as_white = player_games_history[player_games_history['player_color'] == 'branco']
+        games_as_white = player_games_history[player_games_history['player_color'] == 'white']
         win_white = len(games_as_white[games_as_white['result'] == 1.0])
         draw_white = len(games_as_white[games_as_white['result'] == 0.5])
         loss_white = len(games_as_white[games_as_white['result'] == 0.0])
 
-        games_as_black = player_games_history[player_games_history['player_color'] == 'preto']
+        games_as_black = player_games_history[player_games_history['player_color'] == 'black']
         win_black = len(games_as_black[games_as_black['result'] == 1.0])
         draw_black = len(games_as_black[games_as_black['result'] == 0.5])
         loss_black = len(games_as_black[games_as_black['result'] == 0.0])
