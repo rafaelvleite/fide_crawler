@@ -551,8 +551,10 @@ if players and 'selected_option' in locals() and selected_option != "Select a pl
             num_wins = (filtered_games_history['result'] == 1.0).sum()
             num_draws = (filtered_games_history['result'] == 0.5).sum()
             num_losses = (filtered_games_history['result'] == 0.0).sum()
-            metric_card('Score against Opponent', f"W={num_wins} D={num_draws} L={num_losses}")
-
+            scoreCol1, scoreCol2, scoreCol3 = st.columns(3)
+            metric_card('Wins (Count)', f"{num_wins}", scoreCol1)
+            metric_card('Draws (Count)', f"{num_draws}", scoreCol2)
+            metric_card('Losses (Count)', f"{num_losses}", scoreCol3)
         # Now apply formatting and display the filtered DataFrame
         st.table(filtered_games_history[['date', 'tournament_name', 'country', 'player_name', 'player_rating', 'opponent_name', 'opponent_rating', 'result', 'chg', 'k', 'k_chg']])
 
