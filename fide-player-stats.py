@@ -552,10 +552,10 @@ if players and 'selected_option' in locals() and selected_option != "Select a pl
             num_draws = filtered_games_history['result'].eq(0.5).sum()
             num_losses = filtered_games_history['result'].eq(0.0).sum()
             total_games = num_wins + num_draws + num_losses
-            player_score = (num_wins + 0.5 * num_draws) / total_games
-            opponent_score = 1 - player_score
-            st.write(f"Player's score: {player_score:.2f}")
-            st.write(f"Opponent's score: {opponent_score:.2f}")
+            player_score = (num_wins + 0.5 * num_draws)
+            opponent_score = total_games - player_score
+            st.write(f"Player's score: {player_score:.0f}")
+            st.write(f"Opponent's score: {opponent_score:.0f}")
 
         # Now apply formatting and display the filtered DataFrame
         st.table(filtered_games_history[['date', 'tournament_name', 'country', 'player_name', 'player_rating', 'opponent_name', 'opponent_rating', 'result', 'chg', 'k', 'k_chg']])
