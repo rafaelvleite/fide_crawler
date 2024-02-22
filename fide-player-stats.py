@@ -514,14 +514,37 @@ if players and 'selected_option' in locals() and selected_option != "Select a pl
         
         # Display Games History Section
         st.header('Games History')
+
+        # Filter options
+        filter_options = {
+            'Game Result': ['Win', 'Draw', 'Loss'],
+            'Opponent Name Contains': st.text_input('Enter opponent name substring:')
+        }
+
+        # Apply filters
+        filtered_games_history = player_games_history.copy()  # Create a copy to avoid modifying the original DataFrame
+
+        # Filter by game result
+        if 'Game Result' in filter_options:
+            if 'Win' in filter_options['Game Result']:
+                filtered_games_history = filtered_games_history[filtered_games_history['result'] == 1.0]
+            if 'Draw' in filter_options['Game Result']:
+                filtered_games_history = pd.concat([filtered_games_history, player_games_history[player_games_history['result'] == 0.5]])  # Concatenate to include draws
+            if 'Loss' in filter_options['Game Result']:
+                filtered_games_history = pd.concat([filtered_games_history, player_games_history[player_games_history['result'] == 0.0]])  # Concatenate to include losses
+
+        # Filter by opponent name substring
+        if 'Opponent Name Contains' in filter_options and filter_options['Opponent Name Contains']:
+            substring = filter_options['Opponent Name Contains'].strip().lower()
+            filtered_games_history = filtered_games_history[filtered_games_history['opponent_name'].str.lower().str.contains(substring)]
+
         # Ensure numeric columns are of a numeric dtype
         numeric_cols = ['player_rating', 'opponent_rating', 'result', 'chg', 'k', 'k_chg']
         for col in numeric_cols:
-            player_games_history[col] = pd.to_numeric(player_games_history[col], errors='coerce')
+            filtered_games_history[col] = pd.to_numeric(filtered_games_history[col], errors='coerce')
 
-        # Now apply formatting and display the DataFrame
-        st.table(player_games_history[['date', 'tournament_name', 'country', 'player_name', 'player_rating', 'opponent_name', 'opponent_rating', 'result', 'chg', 'k', 'k_chg']])
-
+        # Now apply formatting and display the filtered DataFrame
+        st.table(filtered_games_history[['date', 'tournament_name', 'country', 'player_name', 'player_rating', 'opponent_name', 'opponent_rating', 'result', 'chg', 'k', 'k_chg']])
     else:
         st.write("No games found in the specified period.")
 
