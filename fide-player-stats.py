@@ -396,6 +396,7 @@ def clean_and_prepare_dataframe(df):
 
 # Initialize the database and tables
 initialize_database()
+remove_duplicates_in_db()
 
 st.set_page_config(layout="wide")
 
@@ -431,7 +432,6 @@ if players and 'selected_option' in locals() and selected_option != "Select a pl
         player_data = getPlayerData(selected_fide_id)
         player_games_history = getPlayerGamesHistory(selected_fide_id, player_data['name'], starting_date.strftime("%Y-%m-%d"), end_date.strftime("%Y-%m-%d"))
         player_games_history = clean_and_prepare_dataframe(player_games_history)
-        remove_duplicates_in_db()
 
     st.header('Player Profile')
     
@@ -523,18 +523,20 @@ if players and 'selected_option' in locals() and selected_option != "Select a pl
 
         # Filter options
         filter_options = {
-            'Game Result': ['Win', 'Draw', 'Loss'],
+            'Game Result': st.multiselect('Select game result:', ['Win', 'Draw', 'Loss']),
             'Opponent Name Contains': st.text_input('Enter opponent name substring:')
         }
 
         # Filter by game result
-        if 'Game Result' in filter_options:
+        if 'Game Result' in filter_options and filter_options['Game Result']:
+            filtered_results = []
             if 'Win' in filter_options['Game Result']:
-                filtered_games_history = filtered_games_history[filtered_games_history['result'] == 1.0]
+                filtered_results.append(1.0)
             if 'Draw' in filter_options['Game Result']:
-                filtered_games_history = pd.concat([filtered_games_history, player_games_history[player_games_history['result'] == 0.5]])  # Concatenate to include draws
+                filtered_results.append(0.5)
             if 'Loss' in filter_options['Game Result']:
-                filtered_games_history = pd.concat([filtered_games_history, player_games_history[player_games_history['result'] == 0.0]])  # Concatenate to include losses
+                filtered_results.append(0.0)
+            filtered_games_history = filtered_games_history[filtered_games_history['result'].isin(filtered_results)]
 
         # Filter by opponent name substring
         if 'Opponent Name Contains' in filter_options and filter_options['Opponent Name Contains']:
@@ -543,7 +545,6 @@ if players and 'selected_option' in locals() and selected_option != "Select a pl
 
         # Now apply formatting and display the filtered DataFrame
         st.table(filtered_games_history[['date', 'tournament_name', 'country', 'player_name', 'player_rating', 'opponent_name', 'opponent_rating', 'result', 'chg', 'k', 'k_chg']])
-
 
 
     else:
