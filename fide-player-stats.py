@@ -438,10 +438,26 @@ if players and 'selected_option' in locals() and selected_option != "Select a pl
         metric_card('Draws (Count)', f"{draw_count}", metrics_col2)  
         metric_card('Losses (Count)', f"{loss_count}", metrics_col3)  
         
+        # Display Games History Section
+        st.header('Games History')
+        # Ensure numeric columns are of a numeric dtype
+        numeric_cols = ['player_rating', 'opponent_rating', 'result', 'chg', 'k', 'k_chg']
+        for col in numeric_cols:
+            player_games_history[col] = pd.to_numeric(player_games_history[col], errors='coerce')
+
+        # Pagination settings
+        page_size = 20  # Number of rows per page
+        total_pages = len(player_games_history) // page_size + (1 if len(player_games_history) % page_size > 0 else 0)  # Calculate the total number of pages
+
+        # Widget to select the current page
+        current_page = st.selectbox('Select page', range(1, total_pages + 1))
+
+        # Displaying the sliced DataFrame based on selected page
+        start_row = (current_page - 1) * page_size
+        end_row = start_row + page_size
+        st.table(player_games_history.iloc[start_row:end_row])
     else:
         st.write("No games found in the specified period.")
-
-# Assuming you want to place the ad at the end of your app
 
 # Promotional Message Section
 st.sidebar.write("---")  # Draws a horizontal line for visual separation
@@ -452,7 +468,4 @@ Looking to elevate your chess game? Check out [XB PRO](https://xadrezbrasil.com.
 """)
 st.sidebar.markdown("[Visit XB PRO Now!](https://xadrezbrasil.com.br)", unsafe_allow_html=True)
 
-# Optional: Adding an image or logo
-# If you have a logo or promotional image, you can display it using st.image
-# Example:
 
