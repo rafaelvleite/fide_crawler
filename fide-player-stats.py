@@ -496,14 +496,14 @@ if players and 'selected_option' in locals() and selected_option != "Selecione u
     metric_card('Rating Clássico Atual', player_data.get('std_rating', 'N/A'), col2)
     metric_card('Rating Rápido Atual', player_data.get('rapid_rating', 'N/A'), col3)
     metric_card('Rating Blitz Atual', player_data.get('blitz_rating', 'N/A'), col3)
-    
-    # Garantir que player_games_history esteja ordenado por data
-    player_games_history['date'] = pd.to_datetime(player_games_history['date'])
-    player_games_history.sort_values('date', inplace=True)
-    player_games_history['player_rating'] = pd.to_numeric(player_games_history['player_rating'], errors='coerce')
 
     # Calcular e exibir estatísticas de jogo
     if not player_games_history.empty:
+        # Garantir que player_games_history esteja ordenado por data
+        player_games_history['date'] = pd.to_datetime(player_games_history['date'])
+        player_games_history.sort_values('date', inplace=True)
+        player_games_history['player_rating'] = pd.to_numeric(player_games_history['player_rating'], errors='coerce')
+        
         initial_rating = player_games_history.iloc[0]['player_rating']
         final_rating = player_games_history.iloc[-1]['player_rating']
         delta_rating = final_rating - initial_rating
