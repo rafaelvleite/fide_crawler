@@ -371,6 +371,9 @@ with st.sidebar:
     query = st.text_input('Enter player name:')
     starting_date = st.date_input('Start Date', value=datetime.now() - relativedelta.relativedelta(years=1))
     end_date = st.date_input('End Date', value=datetime.now())
+    # Adjust dates to the first day of the month
+    starting_date = starting_date.replace(day=1)
+    end_date = end_date.replace(day=1)
 
     if query:  # Only proceed if a query has been entered
         with st.spinner('Searching for players...'):
