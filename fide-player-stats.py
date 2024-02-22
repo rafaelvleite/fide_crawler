@@ -513,6 +513,69 @@ if players and 'selected_option' in locals() and selected_option != "Select a pl
         metric_card('Avg. Rating of Opponents (Draws)', f"{avg_opponent_rating_draw:.2f}", opponent_metrics_col2)
         metric_card('Avg. Rating of Opponents (Losses)', f"{avg_opponent_rating_loss:.2f}", opponent_metrics_col3)
         
+        
+        # Filter games where the player played as white
+        games_as_white = player_games_history[player_games_history['color'] == 'W']
+
+        # Calculate win rate, draw rate, and loss rate for playing as white
+        total_games_as_white = len(games_as_white)
+        wins_as_white = len(games_as_white[games_as_white['result'] == 1.0])
+        draws_as_white = len(games_as_white[games_as_white['result'] == 0.5])
+        losses_as_white = len(games_as_white[games_as_white['result'] == 0.0])
+
+        win_rate_white = (wins_as_white / total_games_as_white) * 100
+        draw_rate_white = (draws_as_white / total_games_as_white) * 100
+        loss_rate_white = (losses_as_white / total_games_as_white) * 100
+
+        # Calculate average opponent rating for wins, draws, and losses when playing as white
+        avg_opponent_rating_win_white = games_as_white[games_as_white['result'] == 1.0]['opponent_rating'].mean()
+        avg_opponent_rating_draw_white = games_as_white[games_as_white['result'] == 0.5]['opponent_rating'].mean()
+        avg_opponent_rating_loss_white = games_as_white[games_as_white['result'] == 0.0]['opponent_rating'].mean()
+
+        # Filter games where the player played as black
+        games_as_black = player_games_history[player_games_history['color'] == 'B']
+
+        # Calculate win rate, draw rate, and loss rate for playing as black
+        total_games_as_black = len(games_as_black)
+        wins_as_black = len(games_as_black[games_as_black['result'] == 1.0])
+        draws_as_black = len(games_as_black[games_as_black['result'] == 0.5])
+        losses_as_black = len(games_as_black[games_as_black['result'] == 0.0])
+
+        win_rate_black = (wins_as_black / total_games_as_black) * 100
+        draw_rate_black = (draws_as_black / total_games_as_black) * 100
+        loss_rate_black = (losses_as_black / total_games_as_black) * 100
+
+        # Calculate average opponent rating for wins, draws, and losses when playing as black
+        avg_opponent_rating_win_black = games_as_black[games_as_black['result'] == 1.0]['opponent_rating'].mean()
+        avg_opponent_rating_draw_black = games_as_black[games_as_black['result'] == 0.5]['opponent_rating'].mean()
+        avg_opponent_rating_loss_black = games_as_black[games_as_black['result'] == 0.0]['opponent_rating'].mean()
+
+        
+        # Metrics for playing as white
+        metrics_col1, metrics_col2, metrics_col3 = st.columns(3)
+        metric_card('Win Rate (White)', f"{win_rate_white:.2f}%", metrics_col1)
+        metric_card('Draw Rate (White)', f"{draw_rate_white:.2f}%", metrics_col2)
+        metric_card('Loss Rate (White)', f"{loss_rate_white:.2f}%", metrics_col3)
+
+        # Metrics for playing as black
+        metrics_col4, metrics_col5, metrics_col6 = st.columns(3)
+        metric_card('Win Rate (Black)', f"{win_rate_black:.2f}%", metrics_col4)
+        metric_card('Draw Rate (Black)', f"{draw_rate_black:.2f}%", metrics_col5)
+        metric_card('Loss Rate (Black)', f"{loss_rate_black:.2f}%", metrics_col6)
+
+        # Opponent metrics for playing as white
+        opponent_metrics_col1, opponent_metrics_col2, opponent_metrics_col3 = st.columns(3)
+        metric_card('Average Opponent Rating (When Winning as White)', f"{avg_opponent_rating_win_white:.2f}", opponent_metrics_col1)
+        metric_card('Average Opponent Rating (When Drawing as White)', f"{avg_opponent_rating_draw_white:.2f}", opponent_metrics_col2)
+        metric_card('Average Opponent Rating (When Losing as White)', f"{avg_opponent_rating_loss_white:.2f}", opponent_metrics_col3)
+
+        # Opponent metrics for playing as black
+        opponent_metrics_col4, opponent_metrics_col5, opponent_metrics_col6 = st.columns(3)
+        metric_card('Average Opponent Rating (When Winning as Black)', f"{avg_opponent_rating_win_black:.2f}", opponent_metrics_col4)
+        metric_card('Average Opponent Rating (When Drawing as Black)', f"{avg_opponent_rating_draw_black:.2f}", opponent_metrics_col5)
+        metric_card('Average Opponent Rating (When Losing as Black)', f"{avg_opponent_rating_loss_black:.2f}", opponent_metrics_col6)
+
+        
         # Assuming player_games_history['result'] contains the game outcomes as float (1.0 for win, 0.5 for draw, 0.0 for loss)
 
         # Calculating result counts
