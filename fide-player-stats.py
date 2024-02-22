@@ -229,7 +229,7 @@ def scrapePlayerGamesHistory(fide_id, playerName, startingPeriod, endPeriod):
         walkingDate = walkingDate + relativedelta.relativedelta(months=1)
 
     # Updated DataFrame columns to reflect game-level details
-    gameDf = pd.DataFrame(columns=['date', 'tournament_name', 'country', 'player_name', 'player_rating', 'opponent_name', 'opponent_rating', 'result', 'chg', 'k', 'k_chg'])
+    gameDf = pd.DataFrame(columns=['date', 'tournament_name', 'country', 'player_name', 'player_rating', 'player_color', 'opponent_name', 'opponent_rating', 'result', 'chg', 'k', 'k_chg'])
 
     allLinks = []
     for stringDate in fullDateRange:
@@ -245,6 +245,14 @@ def scrapePlayerGamesHistory(fide_id, playerName, startingPeriod, endPeriod):
             tableDf.reset_index(inplace=True, drop=True)
             limiters = tableDf.isnull().all(1)
             limiters = limiters[limiters == True].index.values.tolist()
+            colors = fullTable.find_all('img')
+            retrievedColors = []
+            for img_tag in colors:
+                src = img_tag.get('src')
+                color = 'white' if 'clr_wh' in src else 'black'
+                retrievedColors.append(color)
+            
+            colorIndex = 0
             
             for limiter in limiters:
                 tournament_name = tableDf.iloc[limiter - 3, 0]
@@ -263,6 +271,7 @@ def scrapePlayerGamesHistory(fide_id, playerName, startingPeriod, endPeriod):
                         'country': row['Unnamed: 4'],
                         'player_name': playerName,
                         'player_rating': player_rating,
+                        'player_color': retrievedColors[colorIndex],
                         'opponent_name': row['Unnamed: 0'],  
                         'opponent_rating': row['Unnamed: 3'],  
                         'result': row['Unnamed: 5'], 
@@ -273,6 +282,8 @@ def scrapePlayerGamesHistory(fide_id, playerName, startingPeriod, endPeriod):
                     gameDf = pd.concat([gameDf, pd.DataFrame([game_details])], ignore_index=True)
                     gameDf.dropna(inplace=True)
                     gameDf.reset_index(inplace=True, drop=True)
+                    colorIndex += 1
+                colorIndex += 1
     if len(gameDf) > 0:
         gameDf['opponent_rating'] = gameDf['opponent_rating'].astype(str).str.replace(r'\D', '', regex=True)
         gameDf['opponent_rating'] = pd.to_numeric(gameDf['opponent_rating'], errors='coerce')
@@ -317,7 +328,7 @@ def getPlayerGamesHistory(fide_id, playerName, startingPeriod, endPeriod):
         cursor.execute("SELECT * FROM game_history WHERE fide_id = ? AND date BETWEEN ? AND ?", (fide_id, startingPeriod.strftime('%Y-%m-%d'), endPeriod.strftime('%Y-%m-%d')))
         games = cursor.fetchall()
         if games:
-            games_df = pd.DataFrame(games, columns=['id', 'fide_id', 'date', 'tournament_name', 'country', 'player_name', 'player_rating', 'opponent_name', 'opponent_rating', 'result', 'chg', 'k', 'k_chg'])
+            games_df = pd.DataFrame(games, columns=['id', 'fide_id', 'date', 'tournament_name', 'country', 'player_name', 'player_rating', 'player_color', 'opponent_name', 'opponent_rating', 'result', 'chg', 'k', 'k_chg'])
             return games_df
         else:
             return pd.DataFrame()  # Return an empty DataFrame if no games are found
@@ -325,8 +336,8 @@ def getPlayerGamesHistory(fide_id, playerName, startingPeriod, endPeriod):
 def insertGameData(cursor, games_df, fide_id):
     if not games_df.empty:
         for index, row in games_df.iterrows():
-            cursor.execute("INSERT INTO game_history (fide_id, date, tournament_name, country, player_name, player_rating, opponent_name, opponent_rating, result, chg, k, k_chg) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
-                           (fide_id, row['date'], row['tournament_name'], row['country'], row['player_name'], row['player_rating'], row['opponent_name'], row['opponent_rating'], row['result'], row['chg'], row['k'], row['k_chg']))
+            cursor.execute("INSERT INTO game_history (fide_id, date, tournament_name, country, player_name, player_rating, player_color, opponent_name, opponent_rating, result, chg, k, k_chg) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
+                           (fide_id, row['date'], row['tournament_name'], row['country'], row['player_name'], row['player_rating'], row['player_color'], row['opponent_name'], row['opponent_rating'], row['result'], row['chg'], row['k'], row['k_chg']))
 
 def metric_card(title, value, col):
     col.markdown(f"""
