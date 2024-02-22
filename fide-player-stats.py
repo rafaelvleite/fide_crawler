@@ -257,22 +257,37 @@ def getPlayerGamesHistory(fide_id, playerName, startingPeriod, endPeriod):
         cursor = conn.cursor()
 
         # Check if games for the player exist within the date range
+        cursor.execute("SELECT date FROM game_history WHERE fide_id = ? AND date BETWEEN ? AND ?", (fide_id, startingPeriod, endPeriod))
+        existing_dates = cursor.fetchall()
+
+        # Convert list of tuples to list of strings for easier comparison
+        existing_dates = [date[0] for date in existing_dates]
+        
+        # Generate a list of all months in the requested period
+        requested_period = pd.date_range(start=startingPeriod, end=endPeriod, freq='MS').strftime('%Y-%m-%d').tolist()
+
+        # Determine which months in the requested period are missing from the database
+        missing_months = [date for date in requested_period if date not in existing_dates]
+
+        # If there are missing months, fetch data for those months and update the database
+        if missing_months:
+            for month in missing_months:
+                # Assuming scrapePlayerGamesHistory fetches data for a single month
+                # You may need to adjust this part to fit your actual data fetching and processing logic
+                fetched_games_df = scrapePlayerGamesHistory(fide_id, playerName, month, month)
+                if not fetched_games_df.empty:
+                    # After fetching and processing, insert the data into the database
+                    for index, row in fetched_games_df.iterrows():
+                        cursor.execute("INSERT INTO game_history (fide_id, date, tournament_name, country, player_name, player_rating, opponent_name, opponent_rating, result, chg, k, k_chg) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
+                                       (fide_id, row['date'], row['tournament_name'], row['country'], row['player_name'], row['player_rating'], row['opponent_name'], row['opponent_rating'], row['result'], row['chg'], row['k'], row['k_chg']))
+                    conn.commit()
+
+        # Fetch and return the complete data for the requested period, now that the database is up to date
         cursor.execute("SELECT * FROM game_history WHERE fide_id = ? AND date BETWEEN ? AND ?", (fide_id, startingPeriod, endPeriod))
         games = cursor.fetchall()
-
-        if games:
-            games_df = pd.DataFrame(games, columns=['id', 'fide_id', 'date', 'tournament_name', 'country', 'player_name', 'player_rating', 'opponent_name', 'opponent_rating', 'result', 'chg', 'k', 'k_chg'])
-            return games_df
-        else:
-            # Your logic to fetch game history and process it
-            fetched_games_df = scrapePlayerGamesHistory(fide_id, playerName, startingPeriod, endPeriod)
-            # After fetching and processing, insert the data into the database
-            for index, row in fetched_games_df.iterrows():
-                cursor.execute("INSERT INTO game_history (fide_id, date, tournament_name, country, player_name, player_rating, opponent_name, opponent_rating, result, chg, k, k_chg) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
-                               (fide_id, row['date'], row['tournament_name'], row['country'], row['player_name'], row['player_rating'], row['opponent_name'], row['opponent_rating'], row['result'], row['chg'], row['k'], row['k_chg']))
-            conn.commit()
-
-            return fetched_games_df
+        games_df = pd.DataFrame(games, columns=['id', 'fide_id', 'date', 'tournament_name', 'country', 'player_name', 'player_rating', 'opponent_name', 'opponent_rating', 'result', 'chg', 'k', 'k_chg'])
+        
+        return games_df
 
 def metric_card(title, value, col):
     col.markdown(f"""
