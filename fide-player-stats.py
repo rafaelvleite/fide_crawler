@@ -515,17 +515,17 @@ if players and 'selected_option' in locals() and selected_option != "Select a pl
         # Display Games History Section
         st.header('Games History')
 
-        # Filter options
-        filter_options = {
-            'Game Result': ['Win', 'Draw', 'Loss'],
-            'Opponent Name Contains': st.text_input('Enter opponent name substring:')
-        }
-
         # Ensure numeric columns are of a numeric dtype
         player_games_history['result'] = pd.to_numeric(player_games_history['result'], errors='coerce')
 
         # Apply filters
         filtered_games_history = player_games_history.copy()  # Create a copy to avoid modifying the original DataFrame
+
+        # Filter options
+        filter_options = {
+            'Game Result': ['Win', 'Draw', 'Loss'],
+            'Opponent Name Contains': st.text_input('Enter opponent name substring:')
+        }
 
         # Filter by game result
         if 'Game Result' in filter_options:
@@ -543,6 +543,8 @@ if players and 'selected_option' in locals() and selected_option != "Select a pl
 
         # Now apply formatting and display the filtered DataFrame
         st.table(filtered_games_history[['date', 'tournament_name', 'country', 'player_name', 'player_rating', 'opponent_name', 'opponent_rating', 'result', 'chg', 'k', 'k_chg']])
+
+
 
     else:
         st.write("No games found in the specified period.")
