@@ -521,6 +521,9 @@ if players and 'selected_option' in locals() and selected_option != "Select a pl
             'Opponent Name Contains': st.text_input('Enter opponent name substring:')
         }
 
+        # Ensure numeric columns are of a numeric dtype
+        player_games_history['result'] = pd.to_numeric(player_games_history['result'], errors='coerce')
+
         # Apply filters
         filtered_games_history = player_games_history.copy()  # Create a copy to avoid modifying the original DataFrame
 
@@ -538,13 +541,9 @@ if players and 'selected_option' in locals() and selected_option != "Select a pl
             substring = filter_options['Opponent Name Contains'].strip().lower()
             filtered_games_history = filtered_games_history[filtered_games_history['opponent_name'].str.lower().str.contains(substring)]
 
-        # Ensure numeric columns are of a numeric dtype
-        numeric_cols = ['player_rating', 'opponent_rating', 'result', 'chg', 'k', 'k_chg']
-        for col in numeric_cols:
-            filtered_games_history[col] = pd.to_numeric(filtered_games_history[col], errors='coerce')
-
         # Now apply formatting and display the filtered DataFrame
         st.table(filtered_games_history[['date', 'tournament_name', 'country', 'player_name', 'player_rating', 'opponent_name', 'opponent_rating', 'result', 'chg', 'k', 'k_chg']])
+
     else:
         st.write("No games found in the specified period.")
 
