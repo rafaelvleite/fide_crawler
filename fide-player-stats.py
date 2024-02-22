@@ -577,9 +577,7 @@ if players and 'selected_option' in locals() and selected_option != "Select a pl
         values = [overall_avg, wins_white_avg, draws_white_avg, losses_white_avg,
                 wins_black_avg, draws_black_avg, losses_black_avg]
 
-        # Layout
-        st.header('Game Statistics')
-
+        
         # Pie charts in columns for visual distribution of wins, draws, and losses
         col1, col2, col3 = st.columns(3)
         # Use create_pie_chart function for col1, col2, col3 as before
