@@ -396,8 +396,6 @@ def clean_and_prepare_dataframe(df):
 
 # Initialize the database and tables
 initialize_database()
-# Call the function to remove duplicates
-remove_duplicates_in_db()
 
 st.set_page_config(layout="wide")
 
@@ -433,6 +431,7 @@ if players and 'selected_option' in locals() and selected_option != "Select a pl
         player_data = getPlayerData(selected_fide_id)
         player_games_history = getPlayerGamesHistory(selected_fide_id, player_data['name'], starting_date.strftime("%Y-%m-%d"), end_date.strftime("%Y-%m-%d"))
         player_games_history = clean_and_prepare_dataframe(player_games_history)
+        remove_duplicates_in_db()
 
     st.header('Player Profile')
     
