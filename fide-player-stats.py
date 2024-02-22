@@ -545,17 +545,20 @@ if players and 'selected_option' in locals() and selected_option != "Select a pl
         if 'Opponent Name Contains' in filter_options and filter_options['Opponent Name Contains']:
             substring = filter_options['Opponent Name Contains'].strip().lower()
             filtered_games_history = filtered_games_history[filtered_games_history['opponent_name'].str.lower().str.contains(substring)]
-
-        # Now apply formatting and display the filtered DataFrame
-        st.table(filtered_games_history[['date', 'tournament_name', 'country', 'player_name', 'player_rating', 'opponent_name', 'opponent_rating', 'result', 'chg', 'k', 'k_chg']])
-
+        
         # Calculate and display score between player and filtered opponent
         if not filtered_games_history.empty:
-            player_score = filtered_games_history['result'].value_counts(normalize=True).get(1.0, 0) * 1 + \
-                        filtered_games_history['result'].value_counts(normalize=True).get(0.5, 0) * 0.5
+            num_wins = filtered_games_history['result'].eq(1.0).sum()
+            num_draws = filtered_games_history['result'].eq(0.5).sum()
+            num_losses = filtered_games_history['result'].eq(0.0).sum()
+            total_games = num_wins + num_draws + num_losses
+            player_score = (num_wins + 0.5 * num_draws) / total_games
             opponent_score = 1 - player_score
             st.write(f"Player's score: {player_score:.2f}")
             st.write(f"Opponent's score: {opponent_score:.2f}")
+
+        # Now apply formatting and display the filtered DataFrame
+        st.table(filtered_games_history[['date', 'tournament_name', 'country', 'player_name', 'player_rating', 'opponent_name', 'opponent_rating', 'result', 'chg', 'k', 'k_chg']])
 
     else:
         st.write("No games found in the specified period.")
