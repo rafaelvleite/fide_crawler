@@ -10,6 +10,14 @@ import sqlite3
 from PIL import Image
 import base64
 from io import BytesIO
+import os
+
+def get_binary_file_downloader_html(bin_file, file_label='File'):
+    with open(bin_file, 'rb') as f:
+        data = f.read()
+    bin_str = base64.b64encode(data).decode()
+    href = f'<a href="data:application/octet-stream;base64,{bin_str}" download="{os.path.basename(bin_file)}">Download {file_label}</a>'
+    return href
 
 def initialize_database():
     conn = sqlite3.connect('./db/fide_data.db')
@@ -459,5 +467,22 @@ st.sidebar.write("""
 Looking to elevate your chess game? Check out [XB PRO](https://xadrezbrasil.com.br) - your ultimate destination for chess learning and improvement. Whether you're a beginner or an advanced player, XB PRO offers tailored content to help you grow. 
 """)
 st.sidebar.markdown("[Visit XB PRO Now!](https://xadrezbrasil.com.br)", unsafe_allow_html=True)
+
+# Path to your SQLite database
+db_path = './db/fide_data.db'
+
+# Check if the file exists to avoid errors
+if os.path.isfile(db_path):
+    # Streamlit's way to create a download button
+    with open(db_path, "rb") as fp:
+        btn = st.sidebar.download_button(
+            label="Download Database",
+            data=fp,
+            file_name="fide_data.db",
+            mime="application/x-sqlite3"
+        )
+else:
+    st.error("Database file not found!")
+
 
 
