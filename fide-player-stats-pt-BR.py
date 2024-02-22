@@ -390,14 +390,14 @@ def plot_rating_time_series(games_df):
         # Opcionalmente, inverter o eixo y, se desejado - para remover essa inversão, comente ou remova a próxima linha
         # plt.gca().invert_yaxis()  # Descomente esta linha se você realmente quiser inverter o eixo y
 
-        plt.title('Classificação Padrão ao Longo do Tempo')
+        plt.title('Rating Clássico ao Longo do Tempo')
         plt.xlabel('Data')
-        plt.ylabel('Classificação Padrão')
+        plt.ylabel('Rating Clássico')
         plt.grid(True)
         plt.tight_layout()
         st.pyplot(plt)
     else:
-        st.write("Nenhum dado de classificação disponível para plotar.")
+        st.write("Nenhum dado de rating disponível para plotar.")
 
 def clean_and_prepare_dataframe(df):
     if not df.empty:
@@ -421,7 +421,7 @@ def create_enhanced_bar_chart(values, categories, title):
     fig, ax = plt.subplots(figsize=(16, 6))
     colors = ['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink']
     ax.bar(categories, values, color=colors)
-    ax.set_ylabel('Classificação Média do Oponente')
+    ax.set_ylabel('Rating Médio do Oponente')
     ax.set_title(title)
     plt.xticks(rotation=45)
     for i, v in enumerate(values):
@@ -482,9 +482,9 @@ if players and 'selected_option' in locals() and selected_option != "Selecione u
     metric_card('Ano de Nascimento', b_year, col3)
     metric_card('Título da FIDE', player_data.get('fide_title', 'N/A'), col3)
         
-    metric_card('Classificação Clássica Atual', player_data.get('std_rating', 'N/A'), col2)
-    metric_card('Classificação Rápida Atual', player_data.get('rapid_rating', 'N/A'), col3)
-    metric_card('Classificação Blitz Atual', player_data.get('blitz_rating', 'N/A'), col3)
+    metric_card('Rating Clássico Atual', player_data.get('std_rating', 'N/A'), col2)
+    metric_card('Rating Rápido Atual', player_data.get('rapid_rating', 'N/A'), col3)
+    metric_card('Rating Blitz Atual', player_data.get('blitz_rating', 'N/A'), col3)
     
     # Garantir que player_games_history esteja ordenado por data
     player_games_history['date'] = pd.to_datetime(player_games_history['date'])
@@ -511,12 +511,12 @@ if players and 'selected_option' in locals() and selected_option != "Selecione u
         
         minDateString = player_games_history['date'].min().strftime("%Y-%m-%d")
         maxDateString = player_games_history['date'].max().strftime("%Y-%m-%d")
-        st.header(f'Evolução da Classificação')
+        st.header(f'Evolução do Rating')
         st.info(f'Jogos encontrados de {minDateString} a {maxDateString}')
         super_metrics_col1, super_metrics_col2, = st.columns([1, 2])  
         metric_card('Total de Jogos (Contagem)', f"{len(player_games_history)}", super_metrics_col1)
-        metric_card('Classificação Média do Oponente Geral', f"{avg_opponent_rating:.2f}", super_metrics_col1)
-        metric_card('Delta de Classificação', f"{delta_rating}", super_metrics_col1)
+        metric_card('Rating Médio do Oponente - Geral', f"{avg_opponent_rating:.2f}", super_metrics_col1)
+        metric_card('Delta de Rating', f"{delta_rating}", super_metrics_col1)
         with super_metrics_col2:
             plot_rating_time_series(player_games_history)
             
