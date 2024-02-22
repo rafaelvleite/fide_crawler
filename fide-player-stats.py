@@ -12,6 +12,33 @@ import base64
 from io import BytesIO
 import os
 
+def remove_duplicates_in_db():
+    with sqlite3.connect('./db/fide_data.db') as conn:
+        cursor = conn.cursor()
+
+        # Temporarily enable support for foreign keys (if needed)
+        cursor.execute('PRAGMA foreign_keys = ON;')
+
+        # Step 1: Identify and delete duplicates
+        # This SQL statement selects duplicates based on your criteria and deletes all but the first occurrence
+        delete_sql = """
+        DELETE FROM game_history
+        WHERE id IN (
+            SELECT id
+            FROM (
+                SELECT id,
+                       ROW_NUMBER() OVER (
+                           PARTITION BY date, tournament_name, player_name, opponent_name, result
+                           ORDER BY id -- Adjust this to keep the record you want (e.g., the earliest or latest)
+                       ) AS rn
+                FROM game_history
+            ) 
+            WHERE rn > 1 -- This keeps the first occurrence and marks subsequent ones for deletion
+        );
+        """
+        cursor.execute(delete_sql)
+        conn.commit()
+
 def get_binary_file_downloader_html(bin_file, file_label='File'):
     with open(bin_file, 'rb') as f:
         data = f.read()
@@ -369,6 +396,8 @@ def clean_and_prepare_dataframe(df):
 
 # Initialize the database and tables
 initialize_database()
+# Call the function to remove duplicates
+remove_duplicates_in_db()
 
 st.set_page_config(layout="wide")
 
