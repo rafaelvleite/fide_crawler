@@ -640,7 +640,7 @@ if players and 'selected_option' in locals() and selected_option != "Selecione u
             metric_card('Derrotas (Contagem)', f"{num_derrotas}", scoreCol3)
             
         # Agora aplicar formatação e exibir o DataFrame filtrado
-        st.table(filtered_games_history[['date', 'tournament_name', 'country', 'player_name', 'player_rating', 'player_color', 'opponent_name', 'opponent_rating', 'result', 'chg', 'k', 'k_chg']])
+        st.table(filtered_games_history[['date', 'tournament_name', 'player_name', 'player_rating', 'player_color', 'opponent_name', 'opponent_rating', 'result', 'chg', 'k', 'k_chg']])
 
 else:
     st.text(" ")
