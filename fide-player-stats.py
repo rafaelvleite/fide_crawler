@@ -420,7 +420,7 @@ def create_pie_chart(sizes, labels, title):
 
 # Enhanced Function to Create a Bar Chart
 def create_enhanced_bar_chart(values, categories, title):
-    fig, ax = plt.subplots(figsize=(8, 6))
+    fig, ax = plt.subplots(figsize=(16, 6))
     colors = ['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink']
     ax.bar(categories, values, color=colors)
     ax.set_ylabel('Average Opponent Rating')
