@@ -420,7 +420,7 @@ st.set_page_config(layout="wide")
 players = []
 with st.sidebar:
     st.title('Search for FIDE Player')
-    query = st.text_input('Enter player name:')
+    query = st.text_input('Enter Player Surename:')
     starting_date = st.date_input('Start Date', value=datetime.now() - relativedelta.relativedelta(years=1))
     end_date = st.date_input('End Date', value=datetime.now())
     # Adjust dates to the first day of the month
