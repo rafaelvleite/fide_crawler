@@ -106,8 +106,6 @@ def displayProfilePhoto(base64_image):
 
 @st.cache(allow_output_mutation=True)    
 def getPlayersFromQuery(query):
-    # Convert the query to lowercase for case-insensitive search
-    query_lower = query.lower()
 
     # Set the URL for the search query
     url = "https://fide.com/search"
@@ -119,53 +117,53 @@ def getPlayersFromQuery(query):
         'Accept-Language': 'en-US,en;q=0.9,pt-BR;q=0.8,pt;q=0.7',
         'Content-Type': 'application/json',
         'Origin': 'https://fide.com',
-        'Referer': f'https://fide.com/search?query={query_lower}',
+        'Referer': f'https://fide.com/search?query={query}',
         'Sec-Fetch-Dest': 'empty',
         'Sec-Fetch-Mode': 'cors',
         'Sec-Fetch-Site': 'same-site',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
     }
 
-    # The query parameters, also using the lowercase query
-    params = {'query': query_lower}
+    # The query parameters
+    params = {'query': query}
 
     # Making the GET request
     response = requests.get(url, headers=headers, params=params)
-
-    # Initialize a list to store player information
-    players = []
 
     # Checking if the request was successful
     if response.status_code == 200:
         soup = BeautifulSoup(response.content, 'html.parser')
         search_blocks = soup.find_all('div', class_='member-block')
+    
+        # Initialize a list to store player information
+        players = []
 
         for block in search_blocks:
             player_entries = block.find_all(class_="member-block__one")
-
+            
             for entry in player_entries:
-                # Normalize extracted player name by converting it to lowercase
-                player_name = entry.find(class_="member-block-info-position").get_text(strip=True).lower()
-
-                # Normalize player title if available
+                # Extract player name
+                player_name = entry.find(class_="member-block-info-position").get_text(strip=True)
+                
+                # Extract player title if available
                 player_title = entry.find(class_="member-block-info-name")
-                player_title = player_title.get_text(strip=True).lower() if player_title else "no title"
-
+                player_title = player_title.get_text(strip=True) if player_title else "No title"
+                
                 # Extract player profile URL
                 player_url = entry.find('a')['href']
-
+                
                 # Extract player ID from URL using regex
                 player_id_match = re.search(r'/profile/(\d+)', player_url)
                 player_id = player_id_match.group(1) if player_id_match else "No ID"
 
-                # Append the normalized information to the players list
+                # Append the extracted information to the players list
                 if 'profile' in player_url and 'news' not in player_url:
                     players.append({
                         'name': player_name,
                         'title': player_title,
                         'url': player_url,
-                        'id': player_id
-                    })
+                        'id': player_id  # Add player ID to the dictionary
+                    })   
     else:
         print(f"Failed to retrieve data. Status code: {response.status_code}")
 
