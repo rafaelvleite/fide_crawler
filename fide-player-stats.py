@@ -256,36 +256,39 @@ def getPlayerGamesHistory(fide_id, playerName, startingPeriod, endPeriod):
     with sqlite3.connect('./db/fide_data.db') as conn:
         cursor = conn.cursor()
 
-        # Ensure the startingPeriod and endPeriod are the first day of the month
-        startingPeriod = datetime.strptime(startingPeriod, "%Y-%m-%d").replace(day=1).strftime("%Y-%m-%d")
-        endPeriod = datetime.strptime(endPeriod, "%Y-%m-%d").replace(day=1).strftime("%Y-%m-%d")
+        # Check if games for the player exist within the date range
+        cursor.execute("SELECT date FROM game_history WHERE fide_id = ? AND date BETWEEN ? AND ?", (fide_id, startingPeriod, endPeriod))
+        existing_dates = cursor.fetchall()
 
+        # Convert list of tuples to list of strings for easier comparison
+        existing_dates = [date[0] for date in existing_dates]
+        
         # Generate a list of all months in the requested period
         requested_period = pd.date_range(start=startingPeriod, end=endPeriod, freq='MS').strftime('%Y-%m-%d').tolist()
 
-        # Check existing game dates in the database for the player within the requested period
-        cursor.execute("SELECT DISTINCT strftime('%Y-%m-01', date) FROM game_history WHERE fide_id = ? AND date BETWEEN ? AND ?", (fide_id, startingPeriod, endPeriod))
-        existing_dates = [row[0] for row in cursor.fetchall()]
-
-        # Identify missing months in the requested period
+        # Determine which months in the requested period are missing from the database
         missing_months = [date for date in requested_period if date not in existing_dates]
 
-        # Fetch and insert missing data
+        # If there are missing months, fetch data for those months and update the database
         if missing_months:
             for month in missing_months:
+                # Assuming scrapePlayerGamesHistory fetches data for a single month
+                # You may need to adjust this part to fit your actual data fetching and processing logic
                 fetched_games_df = scrapePlayerGamesHistory(fide_id, playerName, month, month)
                 if not fetched_games_df.empty:
-                    # Insert fetched data into the database
-                    # (Your existing insertion logic here)
-                    pass
-            conn.commit()
+                    # After fetching and processing, insert the data into the database
+                    for index, row in fetched_games_df.iterrows():
+                        cursor.execute("INSERT INTO game_history (fide_id, date, tournament_name, country, player_name, player_rating, opponent_name, opponent_rating, result, chg, k, k_chg) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
+                                       (fide_id, row['date'], row['tournament_name'], row['country'], row['player_name'], row['player_rating'], row['opponent_name'], row['opponent_rating'], row['result'], row['chg'], row['k'], row['k_chg']))
+                    conn.commit()
 
-        # Retrieve and return complete data for the requested period
+        # Fetch and return the complete data for the requested period, now that the database is up to date
         cursor.execute("SELECT * FROM game_history WHERE fide_id = ? AND date BETWEEN ? AND ?", (fide_id, startingPeriod, endPeriod))
         games = cursor.fetchall()
         games_df = pd.DataFrame(games, columns=['id', 'fide_id', 'date', 'tournament_name', 'country', 'player_name', 'player_rating', 'opponent_name', 'opponent_rating', 'result', 'chg', 'k', 'k_chg'])
-
+        
         return games_df
+
 
 def metric_card(title, value, col):
     col.markdown(f"""
@@ -358,10 +361,6 @@ with st.sidebar:
     query = st.text_input('Enter player name:')
     starting_date = st.date_input('Start Date', value=datetime.now() - relativedelta.relativedelta(years=1))
     end_date = st.date_input('End Date', value=datetime.now())
-    
-    # Adjust dates to the first day of the month
-    starting_date = starting_date.replace(day=1)
-    end_date = end_date.replace(day=1)
 
     if query:  # Only proceed if a query has been entered
         with st.spinner('Searching for players...'):
