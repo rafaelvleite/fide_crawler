@@ -77,6 +77,7 @@ def initialize_database():
         country TEXT,
         player_name TEXT,
         player_rating TEXT,
+        player_color TEXT,
         opponent_name TEXT,
         opponent_rating TEXT,
         result TEXT,
