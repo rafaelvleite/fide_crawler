@@ -456,6 +456,7 @@ if players and 'selected_option' in locals() and selected_option != "Select a pl
     metric_card('Current Blitz Rating', player_data.get('blitz_rating', 'N/A'), col3)
     
     # Ensure player_games_history is sorted by date
+    player_games_history['date'] = pd.to_datetime(player_games_history['date'])
     player_games_history.sort_values('date', inplace=True)
     player_games_history['player_rating'] = pd.to_numeric(player_games_history['player_rating'], errors='coerce')
 
