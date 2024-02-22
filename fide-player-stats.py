@@ -409,6 +409,27 @@ def clean_and_prepare_dataframe(df):
         df.reset_index(drop=True, inplace=True)
     return df
 
+def create_pie_chart(labels, sizes, title, col):
+    """
+    Creates a pie chart for given labels and sizes.
+    
+    Parameters:
+    - labels: A list of labels for each section of the pie chart.
+    - sizes: A list of sizes for each section, corresponding to labels.
+    - title: The title of the chart.
+    - col: The Streamlit column to display the chart in.
+    """
+    # Create a pie chart
+    fig, ax = plt.subplots()
+    ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90)
+    
+    # Equal aspect ratio ensures the pie chart is circular
+    ax.axis('equal')
+    
+    plt.title(title)
+    
+    # Display the chart in the specified Streamlit column
+    col.pyplot(fig)
 
 # Initialize the database and tables
 initialize_database()
@@ -643,6 +664,20 @@ if players and 'selected_option' in locals() and selected_option != "Select a pl
             
         # Now apply formatting and display the filtered DataFrame
         st.table(filtered_games_history[['date', 'tournament_name', 'country', 'player_name', 'player_rating', 'player_color', 'opponent_name', 'opponent_rating', 'result', 'chg', 'k', 'k_chg']])
+        # For overall game results
+        labels = ['Wins', 'Draws', 'Losses']
+        sizes = [win_rate, draw_rate, loss_rate]  # Assuming these are calculated elsewhere in your code
+        create_pie_chart(labels, sizes, 'Overall Game Results', st)  # Use the appropriate Streamlit column if necessary
+
+        # For games played with white pieces
+        labels_white = ['Win (White)', 'Draw (White)', 'Loss (White)']
+        sizes_white = [win_rate_white, draw_rate_white, loss_rate_white]  # Assuming these are calculated elsewhere in your code
+        create_pie_chart(labels_white, sizes_white, 'Results Playing as White', st)  # Use the appropriate Streamlit column if necessary
+
+        # For games played with black pieces
+        labels_black = ['Win (Black)', 'Draw (Black)', 'Loss (Black)']
+        sizes_black = [win_rate_black, draw_rate_black, loss_rate_black]  # Assuming these are calculated elsewhere in your code
+        create_pie_chart(labels_black, sizes_black, 'Results Playing as Black', st)  # Use the appropriate Streamlit column if necessary
 
     else:
         st.write("No games found in the specified period.")
