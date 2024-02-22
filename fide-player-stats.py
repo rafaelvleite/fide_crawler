@@ -256,42 +256,35 @@ def getPlayerGamesHistory(fide_id, playerName, startingPeriod, endPeriod):
     with sqlite3.connect('./db/fide_data.db') as conn:
         cursor = conn.cursor()
 
-        # Convert user input to the first day of the month for consistent comparison
-        startingPeriod = datetime.strptime(startingPeriod, "%Y-%m-%d").replace(day=1).strftime("%Y-%m-%d")
-        endPeriod = datetime.strptime(endPeriod, "%Y-%m-%d").replace(day=1).strftime("%Y-%m-%d")
+        # Ensure input dates are at the start of their respective months
+        startingPeriod = datetime.strptime(startingPeriod, "%Y-%m-%d").replace(day=1)
+        endPeriod = datetime.strptime(endPeriod, "%Y-%m-%d").replace(day=1)
 
-        # Check the earliest and latest game dates for the player within the database
+        # Check the earliest and latest game dates in the database for the player
         cursor.execute("SELECT MIN(date), MAX(date) FROM game_history WHERE fide_id = ?", (fide_id,))
         min_max_date = cursor.fetchone()
 
-        # Initialize flags to determine if data fetching is needed
-        fetch_data = False
-
         if min_max_date[0] is None or min_max_date[1] is None:
-            # No data exists for the player; fetch all data
-            fetch_data = True
+            # If no data exists, fetch for the entire requested period
+            fetched_games_df = scrapePlayerGamesHistory(fide_id, playerName, startingPeriod.strftime('%Y-%m-%d'), endPeriod.strftime('%Y-%m-%d'))
+            insertGameData(cursor, fetched_games_df, fide_id)
         else:
-            # Convert string dates from the database to datetime objects
-            min_date = datetime.strptime(min_max_date[0], "%Y-%m-%d")
-            max_date = datetime.strptime(min_max_date[1], "%Y-%m-%d")
-            start_period_date = datetime.strptime(startingPeriod, "%Y-%m-%d")
-            end_period_date = datetime.strptime(endPeriod, "%Y-%m-%d")
+            db_start_date, db_end_date = [datetime.strptime(date, "%Y-%m-%d") for date in min_max_date]
 
-            # Check if the existing data covers the requested date range
-            if min_date > start_period_date or max_date < end_period_date:
-                fetch_data = True
+            # Fetch and insert data for the period before the earliest record if needed
+            if db_start_date > startingPeriod:
+                fetched_games_df_before = scrapePlayerGamesHistory(fide_id, playerName, startingPeriod.strftime('%Y-%m-%d'), (db_start_date - relativedelta.relativedelta(days=1)).strftime('%Y-%m-%d'))
+                insertGameData(cursor, fetched_games_df_before, fide_id)
 
-        # Fetch and insert missing data if needed
-        if fetch_data:
-            fetched_games_df = scrapePlayerGamesHistory(fide_id, playerName, startingPeriod, endPeriod)
-            if not fetched_games_df.empty:
-                for index, row in fetched_games_df.iterrows():
-                    cursor.execute("INSERT INTO game_history (fide_id, date, tournament_name, country, player_name, player_rating, opponent_name, opponent_rating, result, chg, k, k_chg) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
-                                   (fide_id, row['date'], row['tournament_name'], row['country'], row['player_name'], row['player_rating'], row['opponent_name'], row['opponent_rating'], row['result'], row['chg'], row['k'], row['k_chg']))
-                conn.commit()
+            # Fetch and insert data for the period after the latest record if needed
+            if db_end_date < endPeriod:
+                fetched_games_df_after = scrapePlayerGamesHistory(fide_id, playerName, (db_end_date + relativedelta.relativedelta(days=1)).strftime('%Y-%m-%d'), endPeriod.strftime('%Y-%m-%d'))
+                insertGameData(cursor, fetched_games_df_after, fide_id)
+
+        conn.commit()
 
         # Retrieve and return the complete data for the requested period
-        cursor.execute("SELECT * FROM game_history WHERE fide_id = ? AND date BETWEEN ? AND ?", (fide_id, startingPeriod, endPeriod))
+        cursor.execute("SELECT * FROM game_history WHERE fide_id = ? AND date BETWEEN ? AND ?", (fide_id, startingPeriod.strftime('%Y-%m-%d'), endPeriod.strftime('%Y-%m-%d')))
         games = cursor.fetchall()
         if games:
             games_df = pd.DataFrame(games, columns=['id', 'fide_id', 'date', 'tournament_name', 'country', 'player_name', 'player_rating', 'opponent_name', 'opponent_rating', 'result', 'chg', 'k', 'k_chg'])
@@ -299,6 +292,11 @@ def getPlayerGamesHistory(fide_id, playerName, startingPeriod, endPeriod):
         else:
             return pd.DataFrame()  # Return an empty DataFrame if no games are found
 
+def insertGameData(cursor, games_df, fide_id):
+    if not games_df.empty:
+        for index, row in games_df.iterrows():
+            cursor.execute("INSERT INTO game_history (fide_id, date, tournament_name, country, player_name, player_rating, opponent_name, opponent_rating, result, chg, k, k_chg) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
+                           (fide_id, row['date'], row['tournament_name'], row['country'], row['player_name'], row['player_rating'], row['opponent_name'], row['opponent_rating'], row['result'], row['chg'], row['k'], row['k_chg']))
 
 def metric_card(title, value, col):
     col.markdown(f"""
@@ -359,6 +357,23 @@ def plot_rating_time_series(games_df):
     else:
         st.write("No rating data available to plot.")
 
+def clean_and_prepare_dataframe(df):
+    if not df.empty:
+        # Sort the DataFrame based on the date column
+        df.sort_values('date', inplace=True)
+        
+        # Drop rows with any null values (you might want to be more specific depending on your needs)
+        df.dropna(inplace=True)
+        
+        # Remove duplicate rows, if any, based on all columns or a subset of columns
+        df.drop_duplicates(inplace=True)
+        
+        # Reset index after sorting and dropping rows
+        df.reset_index(drop=True, inplace=True)
+    
+    return df
+
+
 # Initialize the database and tables
 initialize_database()
 
@@ -395,7 +410,8 @@ if players and 'selected_option' in locals() and selected_option != "Select a pl
     with st.spinner(f'Fetching data for {selected_player_info["name"]}...'):
         player_data = getPlayerData(selected_fide_id)
         player_games_history = getPlayerGamesHistory(selected_fide_id, player_data['name'], starting_date.strftime("%Y-%m-%d"), end_date.strftime("%Y-%m-%d"))
-    
+        player_games_history = clean_and_prepare_dataframe(player_games_history)
+
     st.header('Player Profile')
     
     col1, col2, col3 = st.columns([1, 1, 1])
