@@ -408,7 +408,7 @@ def plot_rating_time_series(games_df):
         plt.tight_layout()
         st.pyplot(plt)
     else:
-        st.write("Nenhum dado de rating disponível para plotar.")
+        st.subheader("Nenhum dado de rating disponível para plotar.")
 
 def clean_and_prepare_dataframe(df):
     if not df.empty:

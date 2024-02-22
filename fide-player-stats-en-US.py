@@ -646,7 +646,7 @@ if players and 'selected_option' in locals() and selected_option != "Select a pl
         st.table(filtered_games_history[['date', 'tournament_name', 'country', 'player_name', 'player_rating', 'player_color', 'opponent_name', 'opponent_rating', 'result', 'chg', 'k', 'k_chg']])
         
     else:
-        st.write("No games found in the specified period.")
+        st.subheader("No games found in the specified period.")
 
 # Promotional Message Section
 st.sidebar.write("---")  # Draws a horizontal line for visual separation
