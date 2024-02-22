@@ -168,29 +168,40 @@ def getPlayersFromQuery(query):
 
     return players
 
+def safe_extract(callable, default=''):
+    """Safely executes a callable for BeautifulSoup extraction and handles exceptions."""
+    try:
+        return callable()
+    except Exception:
+        return default
+
 def scrapePlayerData(fide_id):
     url = f'https://ratings.fide.com/profile/{fide_id}'
     html = requests.get(url).text
     soup = BeautifulSoup(html, 'html.parser')
 
-    player_data = {}
-    player_data = {'fide_id': fide_id}  # Incluir o fide_id no player_data
-    player_data['name'] = soup.find('div', class_='profile-top-title').text.strip()
-    player_data['world_rank'] = soup.find('div', text='World Rank (Active):').find_next_sibling('div').text
-    player_data['federation'] = soup.find('div', text='Federation:').find_next_sibling('div').text
-    player_data['b_year'] = soup.find('div', text='B-Year:').find_next_sibling('div').text
-    player_data['sex'] = soup.find('div', text='Sex:').find_next_sibling('div').text
-    player_data['fide_title'] = soup.find('div', text='FIDE title:').find_next_sibling('div').text
-    profile_photo_div = soup.find('div', class_='profile-top__photo')
-    img_tag = profile_photo_div.find('img') if profile_photo_div else None
-    src_value = img_tag['src'] if img_tag else None
-    player_data['profile_photo'] = src_value
+    player_data = {'fide_id': fide_id}  # Include the fide_id in the player_data
 
-    # Extrair informações de classificação
+    # Use the safe_extract function for each piece of data to handle potential exceptions
+    player_data['name'] = safe_extract(lambda: soup.find('div', class_='profile-top-title').text.strip())
+    player_data['world_rank'] = safe_extract(lambda: soup.find('div', text='World Rank (Active):').find_next_sibling('div').text)
+    player_data['federation'] = safe_extract(lambda: soup.find('div', text='Federation:').find_next_sibling('div').text)
+    player_data['b_year'] = safe_extract(lambda: soup.find('div', text='B-Year:').find_next_sibling('div').text)
+    player_data['sex'] = safe_extract(lambda: soup.find('div', text='Sex:').find_next_sibling('div').text)
+    player_data['fide_title'] = safe_extract(lambda: soup.find('div', text='FIDE title:').find_next_sibling('div').text)
+
+    # Handling profile photo separately due to the nested structure
+    def get_profile_photo():
+        profile_photo_div = soup.find('div', class_='profile-top__photo')
+        img_tag = profile_photo_div.find('img') if profile_photo_div else None
+        return img_tag['src'] if img_tag else None
+    player_data['profile_photo'] = safe_extract(get_profile_photo)
+
+    # Extracting rating info
     ratings = soup.select('.profile-top-rating-data')
     for rating in ratings:
-        rating_type = rating.find('span').text.strip().lower()  
-        rating_value = ''.join(filter(str.isdigit, rating.text))  
+        rating_type = safe_extract(lambda: rating.find('span').text.strip().lower())
+        rating_value = safe_extract(lambda: ''.join(filter(str.isdigit, rating.text)))
         player_data[f'{rating_type}_rating'] = rating_value
 
     return player_data
