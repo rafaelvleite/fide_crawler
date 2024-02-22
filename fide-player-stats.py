@@ -664,21 +664,7 @@ if players and 'selected_option' in locals() and selected_option != "Select a pl
             
         # Now apply formatting and display the filtered DataFrame
         st.table(filtered_games_history[['date', 'tournament_name', 'country', 'player_name', 'player_rating', 'player_color', 'opponent_name', 'opponent_rating', 'result', 'chg', 'k', 'k_chg']])
-        # For overall game results
-        labels = ['Wins', 'Draws', 'Losses']
-        sizes = [win_rate, draw_rate, loss_rate]  # Assuming these are calculated elsewhere in your code
-        create_pie_chart(labels, sizes, 'Overall Game Results', st)  # Use the appropriate Streamlit column if necessary
-
-        # For games played with white pieces
-        labels_white = ['Win (White)', 'Draw (White)', 'Loss (White)']
-        sizes_white = [win_rate_white, draw_rate_white, loss_rate_white]  # Assuming these are calculated elsewhere in your code
-        create_pie_chart(labels_white, sizes_white, 'Results Playing as White', st)  # Use the appropriate Streamlit column if necessary
-
-        # For games played with black pieces
-        labels_black = ['Win (Black)', 'Draw (Black)', 'Loss (Black)']
-        sizes_black = [win_rate_black, draw_rate_black, loss_rate_black]  # Assuming these are calculated elsewhere in your code
-        create_pie_chart(labels_black, sizes_black, 'Results Playing as Black', st)  # Use the appropriate Streamlit column if necessary
-
+        
     else:
         st.write("No games found in the specified period.")
 
