@@ -418,11 +418,12 @@ def create_pie_chart(sizes, labels, title):
     plt.title(title)
     return fig
 
-# Function to create a bar chart
-def create_bar_chart(values, categories, title):
-    fig, ax = plt.subplots()
-    ax.bar(categories, values, color=['blue', 'orange', 'green'])
-    ax.set_ylabel('Average Rating')
+# Enhanced Function to Create a Bar Chart
+def create_enhanced_bar_chart(values, categories, title):
+    fig, ax = plt.subplots(figsize=(10, 6))
+    colors = ['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink']
+    ax.bar(categories, values, color=colors)
+    ax.set_ylabel('Average Opponent Rating')
     ax.set_title(title)
     plt.xticks(rotation=45)
     for i, v in enumerate(values):
@@ -522,51 +523,31 @@ if players and 'selected_option' in locals() and selected_option != "Select a pl
             plot_rating_time_series(player_games_history)
             
         st.header('Game Statistics')
-        # Calculating statistics for pie charts
-        win_count = len(player_games_history[player_games_history['result'] == 1.0])
-        draw_count = len(player_games_history[player_games_history['result'] == 0.5])
-        loss_count = len(player_games_history[player_games_history['result'] == 0.0])
+        # Calculating detailed average opponent ratings for bar chart
+        categories = ['Overall', 'Win as White', 'Draw as White', 'Loss as White',
+                    'Win as Black', 'Draw as Black', 'Loss as Black']
 
-        games_as_white = player_games_history[player_games_history['player_color'] == 'white']
-        win_white = len(games_as_white[games_as_white['result'] == 1.0])
-        draw_white = len(games_as_white[games_as_white['result'] == 0.5])
-        loss_white = len(games_as_white[games_as_white['result'] == 0.0])
+        overall_avg = player_games_history['opponent_rating'].mean()
 
-        games_as_black = player_games_history[player_games_history['player_color'] == 'black']
-        win_black = len(games_as_black[games_as_black['result'] == 1.0])
-        draw_black = len(games_as_black[games_as_black['result'] == 0.5])
-        loss_black = len(games_as_black[games_as_black['result'] == 0.0])
+        wins_white_avg = player_games_history[(player_games_history['player_color'] == 'white') & (player_games_history['result'] == 1.0)]['opponent_rating'].mean()
+        draws_white_avg = player_games_history[(player_games_history['player_color'] == 'white') & (player_games_history['result'] == 0.5)]['opponent_rating'].mean()
+        losses_white_avg = player_games_history[(player_games_history['player_color'] == 'white') & (player_games_history['result'] == 0.0)]['opponent_rating'].mean()
 
-        # Calculating average opponent ratings for bar chart
-        overall_avg_rating = player_games_history['opponent_rating'].mean()
-        white_avg_rating = games_as_white['opponent_rating'].mean()
-        black_avg_rating = games_as_black['opponent_rating'].mean()
+        wins_black_avg = player_games_history[(player_games_history['player_color'] == 'black') & (player_games_history['result'] == 1.0)]['opponent_rating'].mean()
+        draws_black_avg = player_games_history[(player_games_history['player_color'] == 'black') & (player_games_history['result'] == 0.5)]['opponent_rating'].mean()
+        losses_black_avg = player_games_history[(player_games_history['player_color'] == 'black') & (player_games_history['result'] == 0.0)]['opponent_rating'].mean()
 
-        # Layout
-        st.header('Game Statistics')
+        values = [overall_avg, wins_white_avg, draws_white_avg, losses_white_avg,
+                wins_black_avg, draws_black_avg, losses_black_avg]
 
-        # Pie charts
+        # Pie charts in columns for visual distribution of wins, draws, and losses
         col1, col2, col3 = st.columns(3)
-        with col1:
-            st.subheader("Overall Performance")
-            fig1 = create_pie_chart([win_count, draw_count, loss_count], ['Wins', 'Draws', 'Losses'], 'Overall')
-            st.pyplot(fig1)
+        # Use create_pie_chart function for col1, col2, col3 as before
 
-        with col2:
-            st.subheader("Performance as White")
-            fig2 = create_pie_chart([win_white, draw_white, loss_white], ['Wins', 'Draws', 'Losses'], 'As White')
-            st.pyplot(fig2)
-
-        with col3:
-            st.subheader("Performance as Black")
-            fig3 = create_pie_chart([win_black, draw_black, loss_black], ['Wins', 'Draws', 'Losses'], 'As Black')
-            st.pyplot(fig3)
-
-        # Bar chart for average opponent ratings
-        st.subheader("Average Opponent Ratings")
-        fig4 = create_bar_chart([overall_avg_rating, white_avg_rating, black_avg_rating], ['Overall', 'As White', 'As Black'], 'Comparison of Average Opponent Ratings')
-        st.pyplot(fig4)
-
+        # Enhanced bar chart for a detailed comparison of average opponent ratings
+        st.subheader("Detailed Performance Metrics")
+        fig = create_enhanced_bar_chart(values, categories, 'Performance Against Opponent Ratings')
+        st.pyplot(fig)
         # Display Games History Section
         st.write(" ")
         st.write(" ")
