@@ -641,8 +641,9 @@ if players and 'selected_option' in locals() and selected_option != "Select a pl
             metric_card('Wins (Count)', f"{num_wins}", scoreCol1)
             metric_card('Draws (Count)', f"{num_draws}", scoreCol2)
             metric_card('Losses (Count)', f"{num_losses}", scoreCol3)
-            
+        
         # Now apply formatting and display the filtered DataFrame
+        filtered_games_history['date'] = pd.to_datetime(filtered_games_history['date']).dt.strftime('%Y-%m-%d')
         st.table(filtered_games_history[['date', 'tournament_name', 'player_name', 'player_rating', 'player_color', 'opponent_name', 'opponent_rating', 'result', 'chg', 'k', 'k_chg']])
         
     else:
