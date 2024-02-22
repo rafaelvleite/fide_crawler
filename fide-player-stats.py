@@ -581,7 +581,7 @@ if players and 'selected_option' in locals() and selected_option != "Selecione u
 
         # Gráfico de barras aprimorado para uma comparação detalhada de ratings médios dos oponentes
         st.subheader("Métricas de Desempenho Detalhadas")
-        fig = create_enhanced_bar_chart(valores, categorias, 'Desempenho Contra Ratings de Oponentes')
+        fig = create_enhanced_bar_chart(valores, categorias, 'Ratings Médios dos Adversários')
         st.pyplot(fig)
 
         # Seção de Histórico de Jogos

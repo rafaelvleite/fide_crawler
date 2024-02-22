@@ -584,7 +584,7 @@ if players and 'selected_option' in locals() and selected_option != "Select a pl
 
         # Enhanced bar chart for a detailed comparison of average opponent ratings
         st.subheader("Detailed Performance Metrics")
-        fig = create_enhanced_bar_chart(values, categories, 'Performance Against Opponent Ratings')
+        fig = create_enhanced_bar_chart(values, categories, 'Average Opponent Ratings')
         st.pyplot(fig)
 
         # Display Games History Section
