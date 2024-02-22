@@ -549,9 +549,6 @@ if players and 'selected_option' in locals() and selected_option != "Select a pl
             opponents_on_filter = list(filtered_games_history['opponent_name'].unique())
             opponents_on_filter.sort()
             opponents_on_filter = '/ '.join(opponents_on_filter)
-        
-        # Calculate and display count of wins, draws, and losses against filtered opponent
-        if not filtered_games_history.empty:
             st.info(f'Games found against {opponents_on_filter}')
             num_wins = (filtered_games_history['result'] == 1.0).sum()
             num_draws = (filtered_games_history['result'] == 0.5).sum()
@@ -560,6 +557,7 @@ if players and 'selected_option' in locals() and selected_option != "Select a pl
             metric_card('Wins (Count)', f"{num_wins}", scoreCol1)
             metric_card('Draws (Count)', f"{num_draws}", scoreCol2)
             metric_card('Losses (Count)', f"{num_losses}", scoreCol3)
+            
         # Now apply formatting and display the filtered DataFrame
         st.table(filtered_games_history[['date', 'tournament_name', 'country', 'player_name', 'player_rating', 'opponent_name', 'opponent_rating', 'result', 'chg', 'k', 'k_chg']])
 
