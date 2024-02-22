@@ -546,16 +546,12 @@ if players and 'selected_option' in locals() and selected_option != "Select a pl
             substring = filter_options['Opponent Name Contains'].strip().lower()
             filtered_games_history = filtered_games_history[filtered_games_history['opponent_name'].str.lower().str.contains(substring)]
         
-        # Calculate and display score between player and filtered opponent
+        # Calculate and display count of wins, draws, and losses against filtered opponent
         if not filtered_games_history.empty:
-            num_wins = filtered_games_history['result'].eq(1.0).sum()
-            num_draws = filtered_games_history['result'].eq(0.5).sum()
-            num_losses = filtered_games_history['result'].eq(0.0).sum()
-            total_games = num_wins + num_draws + num_losses
-            player_score = (num_wins + 0.5 * num_draws)
-            opponent_score = total_games - player_score
-            st.write(f"Player's score: {player_score:.0f}")
-            st.write(f"Opponent's score: {opponent_score:.0f}")
+            num_wins = (filtered_games_history['result'] == 1.0).sum()
+            num_draws = (filtered_games_history['result'] == 0.5).sum()
+            num_losses = (filtered_games_history['result'] == 0.0).sum()
+            st.write(f"Score against {filter_options['Opponent Name Contains']}: W={num_wins} D={num_draws} L={num_losses}")
 
         # Now apply formatting and display the filtered DataFrame
         st.table(filtered_games_history[['date', 'tournament_name', 'country', 'player_name', 'player_rating', 'opponent_name', 'opponent_rating', 'result', 'chg', 'k', 'k_chg']])
