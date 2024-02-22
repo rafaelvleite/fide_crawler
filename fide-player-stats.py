@@ -477,8 +477,8 @@ if players and 'selected_option' in locals() and selected_option != "Select a pl
         avg_opponent_rating_draw = player_games_history[player_games_history['result'] == 0.5]['opponent_rating'].mean()
         avg_opponent_rating_loss = player_games_history[player_games_history['result'] == 0.0]['opponent_rating'].mean()
         
-        minDateString = player_games_history['date'].min()
-        maxDateString = player_games_history['date'].max()
+        minDateString = player_games_history['date'].min().strftime("%Y-%m-%d")
+        maxDateString = player_games_history['date'].max().strftime("%Y-%m-%d")
         st.header(f'Rating Evolution')
         st.info(f'Games found from {minDateString} to {maxDateString}')
         super_metrics_col1, super_metrics_col2, = st.columns([1, 2])  
