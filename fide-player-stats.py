@@ -487,7 +487,7 @@ if players and 'selected_option' in locals() and selected_option != "Selecione u
 
     metric_card('Nome', player_data.get('name', 'N/A'), col2)
     metric_card('Federação', player_data.get('federation', 'N/A'), col2)
-    metric_card('Classificação Mundial', player_data.get('world_rank', 'N/A'), col2)
+    metric_card('Classificação Mundial', player_data.get('world_rank', 'N/A') if player_data.get('world_rank') else "-", col2)
 
     b_year = player_data.get('b_year', 'N/A')
     metric_card('Ano de Nascimento', b_year, col3)
