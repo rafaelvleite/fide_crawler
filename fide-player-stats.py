@@ -643,6 +643,8 @@ if players and 'selected_option' in locals() and selected_option != "Selecione u
         st.table(filtered_games_history[['date', 'tournament_name', 'country', 'player_name', 'player_rating', 'player_color', 'opponent_name', 'opponent_rating', 'result', 'chg', 'k', 'k_chg']])
 
 else:
+    st.text(" ")
+    st.text(" ")
     st.subheader("Nenhum jogo encontrado no período especificado.")
 
 # Seção de Mensagem Promocional
