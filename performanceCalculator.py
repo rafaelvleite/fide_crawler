@@ -175,4 +175,4 @@ def ratingPerformance(numberOfGames, points, opponentsAverageRating, ratingSum, 
         if points == 11:
             return opponentsAverageRating + 800
     else:
-        return round((ratingSum + 400*(totalWins - totalLosses))/numberOfGames)
+        return round((ratingSum + 400*(totalWins - totalLosses))/numberOfGames) if numberOfGames > 0 else 0
