@@ -546,6 +546,8 @@ if players and 'selected_option' in locals() and selected_option != "Select a pl
             substring = filter_options['Opponent Name Contains'].strip().lower()
             filtered_games_history = filtered_games_history[filtered_games_history['opponent_name'].str.lower().str.contains(substring)]
             opponents_on_filter = list(filtered_games_history['opponent_name'].unique())
+            opponents_on_filter.sort()
+            opponents_on_filter = ', '.join(opponents_on_filter)
         
         # Calculate and display count of wins, draws, and losses against filtered opponent
         if not filtered_games_history.empty:
