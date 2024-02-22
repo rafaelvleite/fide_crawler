@@ -248,6 +248,7 @@ def scrapePlayerGamesHistory(fide_id, playerName, startingPeriod, endPeriod):
             limiters = limiters[limiters == True].index.values.tolist()
             colors = fullTable.find_all('img')
             retrievedColors = []
+            
             for img_tag in colors:
                 src = img_tag.get('src')
                 color = 'white' if 'clr_wh' in src else 'black'
@@ -284,7 +285,7 @@ def scrapePlayerGamesHistory(fide_id, playerName, startingPeriod, endPeriod):
                     gameDf.dropna(inplace=True)
                     gameDf.reset_index(inplace=True, drop=True)
                     colorIndex += 1
-                colorIndex += 1
+    
     if len(gameDf) > 0:
         gameDf['opponent_rating'] = gameDf['opponent_rating'].astype(str).str.replace(r'\D', '', regex=True)
         gameDf['opponent_rating'] = pd.to_numeric(gameDf['opponent_rating'], errors='coerce')
@@ -596,8 +597,6 @@ if players and 'selected_option' in locals() and selected_option != "Select a pl
         metric_card('Average Opponent Rating (When Drawing as Black)', f"{avg_opponent_rating_draw_black:.2f}", opponent_metrics_col5)
         metric_card('Average Opponent Rating (When Losing as Black)', f"{avg_opponent_rating_loss_black:.2f}", opponent_metrics_col6)
 
-        
-        
         # Display Games History Section
         st.write(" ")
         st.write(" ")
