@@ -475,6 +475,7 @@ button_style = """
 </a>
 """
 st.sidebar.markdown(button_style, unsafe_allow_html=True)
+st.sidebar.write("---")  # Draws a horizontal line for visual separation
 
 # Path to your SQLite database
 db_path = './db/fide_data.db'
