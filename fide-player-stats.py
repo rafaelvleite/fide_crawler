@@ -549,6 +549,13 @@ if players and 'selected_option' in locals() and selected_option != "Select a pl
         # Now apply formatting and display the filtered DataFrame
         st.table(filtered_games_history[['date', 'tournament_name', 'country', 'player_name', 'player_rating', 'opponent_name', 'opponent_rating', 'result', 'chg', 'k', 'k_chg']])
 
+        # Calculate and display score between player and filtered opponent
+        if not filtered_games_history.empty:
+            player_score = filtered_games_history['result'].value_counts(normalize=True).get(1.0, 0) * 1 + \
+                        filtered_games_history['result'].value_counts(normalize=True).get(0.5, 0) * 0.5
+            opponent_score = 1 - player_score
+            st.write(f"Player's score: {player_score:.2f}")
+            st.write(f"Opponent's score: {opponent_score:.2f}")
 
     else:
         st.write("No games found in the specified period.")
