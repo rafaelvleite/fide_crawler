@@ -11,7 +11,28 @@ from PIL import Image
 import base64
 from io import BytesIO
 import os
+import numpy as np
 
+def create_bar_chart(average_ratings, labels, title, col):
+    """
+    Creates a bar chart for given average ratings.
+    
+    Parameters:
+    - average_ratings: A list of average ratings for overall, white, and black.
+    - labels: A list of labels corresponding to each average rating.
+    - title: The title of the chart.
+    - col: The Streamlit column to display the chart in.
+    """
+    fig, ax = plt.subplots()
+    positions = np.arange(len(average_ratings))
+    ax.bar(positions, average_ratings, align='center', alpha=0.7)
+    ax.set_xticks(positions)
+    ax.set_xticklabels(labels)
+    ax.set_title(title)
+    ax.set_ylabel('Average Rating')
+    
+    col.pyplot(fig)
+    
 def remove_duplicates_in_db():
     with sqlite3.connect('./db/fide_data.db') as conn:
         cursor = conn.cursor()
@@ -524,99 +545,50 @@ if players and 'selected_option' in locals() and selected_option != "Select a pl
             plot_rating_time_series(player_games_history)
             
         st.header('Game Statistics')
-        st.subheader('Overall')
-        
-        starting_metrics_col1, starting_metrics_col2, starting_metrics_col3 = st.columns(3)  
-        
-        # Calculating result counts
-        results_counts = player_games_history['result'].value_counts()
+        # Calculating statistics for pie charts
+        win_count = len(player_games_history[player_games_history['result'] == 1.0])
+        draw_count = len(player_games_history[player_games_history['result'] == 0.5])
+        loss_count = len(player_games_history[player_games_history['result'] == 0.0])
 
-        # Extracting counts for win, draw, and loss
-        win_count = results_counts.get(1.0, 0)
-        draw_count = results_counts.get(0.5, 0)
-        loss_count = results_counts.get(0.0, 0)
-
-        # You can display these counts similarly to how you've displayed the rates
-        metric_card('Wins (Count)', f"{win_count}", starting_metrics_col1)  
-        metric_card('Draws (Count)', f"{draw_count}", starting_metrics_col2)  
-        metric_card('Losses (Count)', f"{loss_count}", starting_metrics_col3)  
-        
-        metric_card('Win Rate', f"{win_rate:.2f}%", starting_metrics_col1)  
-        metric_card('Draw Rate', f"{draw_rate:.2f}%", starting_metrics_col2)  
-        metric_card('Loss Rate', f"{loss_rate:.2f}%", starting_metrics_col3)  
-        starting_opponent_metrics_col1, starting_opponent_metrics_col2, starting_opponent_metrics_col3 = st.columns(3)
-        metric_card('Avg. Rating of Opponents (Wins)', f"{avg_opponent_rating_win:.2f}", starting_opponent_metrics_col1)
-        metric_card('Avg. Rating of Opponents (Draws)', f"{avg_opponent_rating_draw:.2f}", starting_opponent_metrics_col2)
-        metric_card('Avg. Rating of Opponents (Losses)', f"{avg_opponent_rating_loss:.2f}", starting_opponent_metrics_col3)
-        
-        st.write(" ")
-        st.write(" ")
-        st.subheader('Playing with White Pieces')
-
-        # Filter games where the player played as white
         games_as_white = player_games_history[player_games_history['player_color'] == 'white']
+        win_white = len(games_as_white[games_as_white['result'] == 1.0])
+        draw_white = len(games_as_white[games_as_white['result'] == 0.5])
+        loss_white = len(games_as_white[games_as_white['result'] == 0.0])
 
-        # Calculate win rate, draw rate, and loss rate for playing as white
-        total_games_as_white = len(games_as_white)
-        wins_as_white = len(games_as_white[games_as_white['result'] == 1.0])
-        draws_as_white = len(games_as_white[games_as_white['result'] == 0.5])
-        losses_as_white = len(games_as_white[games_as_white['result'] == 0.0])
-
-        win_rate_white = (wins_as_white / total_games_as_white) * 100
-        draw_rate_white = (draws_as_white / total_games_as_white) * 100
-        loss_rate_white = (losses_as_white / total_games_as_white) * 100
-
-        # Calculate average opponent rating for wins, draws, and losses when playing as white
-        avg_opponent_rating_win_white = games_as_white[games_as_white['result'] == 1.0]['opponent_rating'].mean()
-        avg_opponent_rating_draw_white = games_as_white[games_as_white['result'] == 0.5]['opponent_rating'].mean()
-        avg_opponent_rating_loss_white = games_as_white[games_as_white['result'] == 0.0]['opponent_rating'].mean()
-
-        # Filter games where the player played as black
         games_as_black = player_games_history[player_games_history['player_color'] == 'black']
+        win_black = len(games_as_black[games_as_black['result'] == 1.0])
+        draw_black = len(games_as_black[games_as_black['result'] == 0.5])
+        loss_black = len(games_as_black[games_as_black['result'] == 0.0])
 
-        # Calculate win rate, draw rate, and loss rate for playing as black
-        total_games_as_black = len(games_as_black)
-        wins_as_black = len(games_as_black[games_as_black['result'] == 1.0])
-        draws_as_black = len(games_as_black[games_as_black['result'] == 0.5])
-        losses_as_black = len(games_as_black[games_as_black['result'] == 0.0])
+        # Calculating average opponent ratings for bar chart
+        overall_avg_rating = player_games_history['opponent_rating'].mean()
+        white_avg_rating = games_as_white['opponent_rating'].mean()
+        black_avg_rating = games_as_black['opponent_rating'].mean()
 
-        win_rate_black = (wins_as_black / total_games_as_black) * 100
-        draw_rate_black = (draws_as_black / total_games_as_black) * 100
-        loss_rate_black = (losses_as_black / total_games_as_black) * 100
+        # Layout
+        st.header('Game Statistics')
 
-        # Calculate average opponent rating for wins, draws, and losses when playing as black
-        avg_opponent_rating_win_black = games_as_black[games_as_black['result'] == 1.0]['opponent_rating'].mean()
-        avg_opponent_rating_draw_black = games_as_black[games_as_black['result'] == 0.5]['opponent_rating'].mean()
-        avg_opponent_rating_loss_black = games_as_black[games_as_black['result'] == 0.0]['opponent_rating'].mean()
+        # Pie charts
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.subheader("Overall Performance")
+            fig1 = create_pie_chart([win_count, draw_count, loss_count], ['Wins', 'Draws', 'Losses'], 'Overall')
+            st.pyplot(fig1)
 
-        
-        # Metrics for playing as white
-        metrics_col1, metrics_col2, metrics_col3 = st.columns(3)
-        metric_card('Win Rate (White)', f"{win_rate_white:.2f}%", metrics_col1)
-        metric_card('Draw Rate (White)', f"{draw_rate_white:.2f}%", metrics_col2)
-        metric_card('Loss Rate (White)', f"{loss_rate_white:.2f}%", metrics_col3)
+        with col2:
+            st.subheader("Performance as White")
+            fig2 = create_pie_chart([win_white, draw_white, loss_white], ['Wins', 'Draws', 'Losses'], 'As White')
+            st.pyplot(fig2)
 
-        # Opponent metrics for playing as white
-        opponent_metrics_col1, opponent_metrics_col2, opponent_metrics_col3 = st.columns(3)
-        metric_card('Average Opponent Rating (When Winning as White)', f"{avg_opponent_rating_win_white:.2f}", opponent_metrics_col1)
-        metric_card('Average Opponent Rating (When Drawing as White)', f"{avg_opponent_rating_draw_white:.2f}", opponent_metrics_col2)
-        metric_card('Average Opponent Rating (When Losing as White)', f"{avg_opponent_rating_loss_white:.2f}", opponent_metrics_col3)
-        
-        st.write(" ")
-        st.write(" ")
-        st.subheader('Playing with Black Pieces')
+        with col3:
+            st.subheader("Performance as Black")
+            fig3 = create_pie_chart([win_black, draw_black, loss_black], ['Wins', 'Draws', 'Losses'], 'As Black')
+            st.pyplot(fig3)
 
-        # Metrics for playing as black
-        metrics_col4, metrics_col5, metrics_col6 = st.columns(3)
-        metric_card('Win Rate (Black)', f"{win_rate_black:.2f}%", metrics_col4)
-        metric_card('Draw Rate (Black)', f"{draw_rate_black:.2f}%", metrics_col5)
-        metric_card('Loss Rate (Black)', f"{loss_rate_black:.2f}%", metrics_col6)
-
-        # Opponent metrics for playing as black
-        opponent_metrics_col4, opponent_metrics_col5, opponent_metrics_col6 = st.columns(3)
-        metric_card('Average Opponent Rating (When Winning as Black)', f"{avg_opponent_rating_win_black:.2f}", opponent_metrics_col4)
-        metric_card('Average Opponent Rating (When Drawing as Black)', f"{avg_opponent_rating_draw_black:.2f}", opponent_metrics_col5)
-        metric_card('Average Opponent Rating (When Losing as Black)', f"{avg_opponent_rating_loss_black:.2f}", opponent_metrics_col6)
+        # Bar chart for average opponent ratings
+        st.subheader("Average Opponent Ratings")
+        fig4 = create_bar_chart([overall_avg_rating, white_avg_rating, black_avg_rating], ['Overall', 'As White', 'As Black'], 'Comparison of Average Opponent Ratings')
+        st.pyplot(fig4)
 
         # Display Games History Section
         st.write(" ")
