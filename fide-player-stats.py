@@ -253,9 +253,8 @@ def scrapePlayerGamesHistory(fide_id, playerName, startingPeriod, endPeriod):
                 color = 'branco' if 'clr_wh' in src else 'preto'
                 retrievedColors.append(color)
             
-            colorIndex = 0
-            
             for limiter in limiters:
+                
                 tournament_name = tableDf.iloc[limiter - 3, 0]
                 tournament_date = tableDf.iloc[limiter - 3, 7]
                 player_rating = tableDf.iloc[limiter - 1, 1]
@@ -263,6 +262,8 @@ def scrapePlayerGamesHistory(fide_id, playerName, startingPeriod, endPeriod):
                     localDf = tableDf.iloc[limiter + 1:limiters[limiters.index(limiter) + 1] - 3, :]
                 else:
                     localDf = tableDf.iloc[limiter + 1:, :]
+                
+                colorIndex = 0
                 
                 # Iterar sobre cada jogo no torneio
                 for _, row in localDf.iterrows():
