@@ -102,7 +102,8 @@ def displayProfilePhoto(base64_image):
 
     # Display the image in Streamlit
     st.image(image, width=350)
-    
+
+@st.cache(allow_output_mutation=True)    
 def getPlayersFromQuery(query):
 
     # Set the URL for the search query
