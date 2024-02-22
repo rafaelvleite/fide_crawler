@@ -359,18 +359,11 @@ def plot_rating_time_series(games_df):
 
 def clean_and_prepare_dataframe(df):
     if not df.empty:
-        # Sort the DataFrame based on the date column
+        duplicate_columns = ['date', 'tournament_name', 'player_name', 'opponent_name', 'result']
+        df.drop_duplicates(subset=duplicate_columns, inplace=True)
         df.sort_values('date', inplace=True)
-        
-        # Drop rows with any null values (you might want to be more specific depending on your needs)
         df.dropna(inplace=True)
-        
-        # Remove duplicate rows, if any, based on all columns or a subset of columns
-        df.drop_duplicates(inplace=True)
-        
-        # Reset index after sorting and dropping rows
         df.reset_index(drop=True, inplace=True)
-    
     return df
 
 
