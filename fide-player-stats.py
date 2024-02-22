@@ -472,17 +472,17 @@ st.sidebar.markdown("[Visit XB PRO Now!](https://xadrezbrasil.com.br)", unsafe_a
 db_path = './db/fide_data.db'
 
 # Check if the file exists to avoid errors
-if os.path.isfile(db_path):
+#if os.path.isfile(db_path):
     # Streamlit's way to create a download button
-    with open(db_path, "rb") as fp:
-        btn = st.sidebar.download_button(
-            label="Download Database",
-            data=fp,
-            file_name="fide_data.db",
-            mime="application/x-sqlite3"
-        )
-else:
-    st.error("Database file not found!")
+#    with open(db_path, "rb") as fp:
+#        btn = st.sidebar.download_button(
+#            label="Download Database",
+#            data=fp,
+#            file_name="fide_data.db",
+#            mime="application/x-sqlite3"
+#        )
+#else:
+#    st.error("Database file not found!")
 
 
 
