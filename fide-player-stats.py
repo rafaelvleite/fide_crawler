@@ -12,26 +12,6 @@ import base64
 from io import BytesIO
 import os
 import numpy as np
-
-def create_bar_chart(average_ratings, labels, title, col):
-    """
-    Creates a bar chart for given average ratings.
-    
-    Parameters:
-    - average_ratings: A list of average ratings for overall, white, and black.
-    - labels: A list of labels corresponding to each average rating.
-    - title: The title of the chart.
-    - col: The Streamlit column to display the chart in.
-    """
-    fig, ax = plt.subplots()
-    positions = np.arange(len(average_ratings))
-    ax.bar(positions, average_ratings, align='center', alpha=0.7)
-    ax.set_xticks(positions)
-    ax.set_xticklabels(labels)
-    ax.set_title(title)
-    ax.set_ylabel('Average Rating')
-    
-    col.pyplot(fig)
     
 def remove_duplicates_in_db():
     with sqlite3.connect('./db/fide_data.db') as conn:
@@ -430,27 +410,24 @@ def clean_and_prepare_dataframe(df):
         df.reset_index(drop=True, inplace=True)
     return df
 
-def create_pie_chart(labels, sizes, title, col):
-    """
-    Creates a pie chart for given labels and sizes.
-    
-    Parameters:
-    - labels: A list of labels for each section of the pie chart.
-    - sizes: A list of sizes for each section, corresponding to labels.
-    - title: The title of the chart.
-    - col: The Streamlit column to display the chart in.
-    """
-    # Create a pie chart
+# Function to create pie charts
+def create_pie_chart(sizes, labels, title):
     fig, ax = plt.subplots()
     ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90)
-    
-    # Equal aspect ratio ensures the pie chart is circular
     ax.axis('equal')
-    
     plt.title(title)
-    
-    # Display the chart in the specified Streamlit column
-    col.pyplot(fig)
+    return fig
+
+# Function to create a bar chart
+def create_bar_chart(values, categories, title):
+    fig, ax = plt.subplots()
+    ax.bar(categories, values, color=['blue', 'orange', 'green'])
+    ax.set_ylabel('Average Rating')
+    ax.set_title(title)
+    plt.xticks(rotation=45)
+    for i, v in enumerate(values):
+        ax.text(i, v + 3, f"{v:.0f}", ha='center', va='bottom')
+    return fig
 
 # Initialize the database and tables
 initialize_database()
