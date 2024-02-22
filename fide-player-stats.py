@@ -256,38 +256,48 @@ def getPlayerGamesHistory(fide_id, playerName, startingPeriod, endPeriod):
     with sqlite3.connect('./db/fide_data.db') as conn:
         cursor = conn.cursor()
 
-        # Check if games for the player exist within the date range
-        cursor.execute("SELECT date FROM game_history WHERE fide_id = ? AND date BETWEEN ? AND ?", (fide_id, startingPeriod, endPeriod))
-        existing_dates = cursor.fetchall()
+        # Convert user input to the first day of the month for consistent comparison
+        startingPeriod = datetime.strptime(startingPeriod, "%Y-%m-%d").replace(day=1).strftime("%Y-%m-%d")
+        endPeriod = datetime.strptime(endPeriod, "%Y-%m-%d").replace(day=1).strftime("%Y-%m-%d")
 
-        # Convert list of tuples to list of strings for easier comparison
-        existing_dates = [date[0] for date in existing_dates]
-        
-        # Generate a list of all months in the requested period
-        requested_period = pd.date_range(start=startingPeriod, end=endPeriod, freq='MS').strftime('%Y-%m-%d').tolist()
+        # Check the earliest and latest game dates for the player within the database
+        cursor.execute("SELECT MIN(date), MAX(date) FROM game_history WHERE fide_id = ?", (fide_id,))
+        min_max_date = cursor.fetchone()
 
-        # Determine which months in the requested period are missing from the database
-        missing_months = [date for date in requested_period if date not in existing_dates]
+        # Initialize flags to determine if data fetching is needed
+        fetch_data = False
 
-        # If there are missing months, fetch data for those months and update the database
-        if missing_months:
-            for month in missing_months:
-                # Assuming scrapePlayerGamesHistory fetches data for a single month
-                # You may need to adjust this part to fit your actual data fetching and processing logic
-                fetched_games_df = scrapePlayerGamesHistory(fide_id, playerName, month, month)
-                if not fetched_games_df.empty:
-                    # After fetching and processing, insert the data into the database
-                    for index, row in fetched_games_df.iterrows():
-                        cursor.execute("INSERT INTO game_history (fide_id, date, tournament_name, country, player_name, player_rating, opponent_name, opponent_rating, result, chg, k, k_chg) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
-                                       (fide_id, row['date'], row['tournament_name'], row['country'], row['player_name'], row['player_rating'], row['opponent_name'], row['opponent_rating'], row['result'], row['chg'], row['k'], row['k_chg']))
-                    conn.commit()
+        if min_max_date[0] is None or min_max_date[1] is None:
+            # No data exists for the player; fetch all data
+            fetch_data = True
+        else:
+            # Convert string dates from the database to datetime objects
+            min_date = datetime.strptime(min_max_date[0], "%Y-%m-%d")
+            max_date = datetime.strptime(min_max_date[1], "%Y-%m-%d")
+            start_period_date = datetime.strptime(startingPeriod, "%Y-%m-%d")
+            end_period_date = datetime.strptime(endPeriod, "%Y-%m-%d")
 
-        # Fetch and return the complete data for the requested period, now that the database is up to date
+            # Check if the existing data covers the requested date range
+            if min_date > start_period_date or max_date < end_period_date:
+                fetch_data = True
+
+        # Fetch and insert missing data if needed
+        if fetch_data:
+            fetched_games_df = scrapePlayerGamesHistory(fide_id, playerName, startingPeriod, endPeriod)
+            if not fetched_games_df.empty:
+                for index, row in fetched_games_df.iterrows():
+                    cursor.execute("INSERT INTO game_history (fide_id, date, tournament_name, country, player_name, player_rating, opponent_name, opponent_rating, result, chg, k, k_chg) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
+                                   (fide_id, row['date'], row['tournament_name'], row['country'], row['player_name'], row['player_rating'], row['opponent_name'], row['opponent_rating'], row['result'], row['chg'], row['k'], row['k_chg']))
+                conn.commit()
+
+        # Retrieve and return the complete data for the requested period
         cursor.execute("SELECT * FROM game_history WHERE fide_id = ? AND date BETWEEN ? AND ?", (fide_id, startingPeriod, endPeriod))
         games = cursor.fetchall()
-        games_df = pd.DataFrame(games, columns=['id', 'fide_id', 'date', 'tournament_name', 'country', 'player_name', 'player_rating', 'opponent_name', 'opponent_rating', 'result', 'chg', 'k', 'k_chg'])
-        
-        return games_df
+        if games:
+            games_df = pd.DataFrame(games, columns=['id', 'fide_id', 'date', 'tournament_name', 'country', 'player_name', 'player_rating', 'opponent_name', 'opponent_rating', 'result', 'chg', 'k', 'k_chg'])
+            return games_df
+        else:
+            return pd.DataFrame()  # Return an empty DataFrame if no games are found
 
 
 def metric_card(title, value, col):
