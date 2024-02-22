@@ -466,7 +466,15 @@ st.sidebar.header("Improve Your Chess with XB PRO")
 st.sidebar.write("""
 Looking to elevate your chess game? Check out [XB PRO](https://xadrezbrasil.com.br) - your ultimate destination for chess learning and improvement. Whether you're a beginner or an advanced player, XB PRO offers tailored content to help you grow. 
 """)
-st.sidebar.markdown("[Visit XB PRO Now!](https://xadrezbrasil.com.br)", unsafe_allow_html=True)
+# Using st.markdown to create a link that looks like a button
+button_style = """
+<a href='https://xadrezbrasil.com.br' target='_blank'>
+    <button style='color: white; background-color: #4CAF50; border: none; padding: 10px 20px; text-align: center; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 12px;'>
+        Visit XB PRO Now!
+    </button>
+</a>
+"""
+st.sidebar.markdown(button_style, unsafe_allow_html=True)
 
 # Path to your SQLite database
 db_path = './db/fide_data.db'
