@@ -438,10 +438,21 @@ if players and 'selected_option' in locals() and selected_option != "Select a pl
         metric_card('Draws (Count)', f"{draw_count}", metrics_col2)  
         metric_card('Losses (Count)', f"{loss_count}", metrics_col3)  
         
-
-
-
-
-
     else:
         st.write("No games found in the specified period.")
+
+# Assuming you want to place the ad at the end of your app
+
+# Promotional Message Section
+st.sidebar.write("---")  # Draws a horizontal line for visual separation
+st.sidebar.image("XB-logo.png", width=100)
+st.sidebar.header("Improve Your Chess with XB PRO")
+st.sidebar.write("""
+Looking to elevate your chess game? Check out [XB PRO](https://xadrezbrasil.com.br) - your ultimate destination for chess learning and improvement. Whether you're a beginner or an advanced player, XB PRO offers tailored content to help you grow. 
+""")
+st.sidebar.markdown("[Visit XB PRO Now!](https://xadrezbrasil.com.br)", unsafe_allow_html=True)
+
+# Optional: Adding an image or logo
+# If you have a logo or promotional image, you can display it using st.image
+# Example:
+
