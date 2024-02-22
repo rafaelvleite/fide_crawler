@@ -445,17 +445,9 @@ if players and 'selected_option' in locals() and selected_option != "Select a pl
         for col in numeric_cols:
             player_games_history[col] = pd.to_numeric(player_games_history[col], errors='coerce')
 
-        # Pagination settings
-        page_size = 20  # Number of rows per page
-        total_pages = len(player_games_history) // page_size + (1 if len(player_games_history) % page_size > 0 else 0)  # Calculate the total number of pages
+        # Now apply formatting and display the DataFrame
+        st.table(player_games_history[['date', 'tournament_name', 'country', 'player_name', 'player_rating', 'opponent_name', 'opponent_rating', 'result', 'chg', 'k', 'k_chg']])
 
-        # Widget to select the current page
-        current_page = st.selectbox('Select page', range(1, total_pages + 1))
-
-        # Displaying the sliced DataFrame based on selected page
-        start_row = (current_page - 1) * page_size
-        end_row = start_row + page_size
-        st.table(player_games_history.iloc[start_row:end_row])
     else:
         st.write("No games found in the specified period.")
 
