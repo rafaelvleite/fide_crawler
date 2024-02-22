@@ -502,20 +502,37 @@ if players and 'selected_option' in locals() and selected_option != "Select a pl
             plot_rating_time_series(player_games_history)
             
         st.header('Game Statistics')
-                
-        metrics_col1, metrics_col2, metrics_col3 = st.columns(3)  
+        st.subheader('Overall')
         
-        metric_card('Win Rate', f"{win_rate:.2f}%", metrics_col1)  
-        metric_card('Draw Rate', f"{draw_rate:.2f}%", metrics_col2)  
-        metric_card('Loss Rate', f"{loss_rate:.2f}%", metrics_col3)  
-        opponent_metrics_col1, opponent_metrics_col2, opponent_metrics_col3 = st.columns(3)
-        metric_card('Avg. Rating of Opponents (Wins)', f"{avg_opponent_rating_win:.2f}", opponent_metrics_col1)
-        metric_card('Avg. Rating of Opponents (Draws)', f"{avg_opponent_rating_draw:.2f}", opponent_metrics_col2)
-        metric_card('Avg. Rating of Opponents (Losses)', f"{avg_opponent_rating_loss:.2f}", opponent_metrics_col3)
+        starting_metrics_col1, starting_metrics_col2, starting_metrics_col3 = st.columns(3)  
         
+        # Calculating result counts
+        results_counts = player_games_history['result'].value_counts()
+
+        # Extracting counts for win, draw, and loss
+        win_count = results_counts.get(1.0, 0)
+        draw_count = results_counts.get(0.5, 0)
+        loss_count = results_counts.get(0.0, 0)
+
+        # You can display these counts similarly to how you've displayed the rates
+        metric_card('Wins (Count)', f"{win_count}", starting_metrics_col1)  
+        metric_card('Draws (Count)', f"{draw_count}", starting_metrics_col2)  
+        metric_card('Losses (Count)', f"{loss_count}", starting_metrics_col3)  
         
+        metric_card('Win Rate', f"{win_rate:.2f}%", starting_metrics_col1)  
+        metric_card('Draw Rate', f"{draw_rate:.2f}%", starting_metrics_col2)  
+        metric_card('Loss Rate', f"{loss_rate:.2f}%", starting_metrics_col3)  
+        starting_opponent_metrics_col1, starting_opponent_metrics_col2, starting_opponent_metrics_col3 = st.columns(3)
+        metric_card('Avg. Rating of Opponents (Wins)', f"{avg_opponent_rating_win:.2f}", starting_opponent_metrics_col1)
+        metric_card('Avg. Rating of Opponents (Draws)', f"{avg_opponent_rating_draw:.2f}", starting_opponent_metrics_col2)
+        metric_card('Avg. Rating of Opponents (Losses)', f"{avg_opponent_rating_loss:.2f}", starting_opponent_metrics_col3)
+        
+        st.write(" ")
+        st.write(" ")
+        st.subheader('Playing with White Pieces')
+
         # Filter games where the player played as white
-        games_as_white = player_games_history[player_games_history['color'] == 'W']
+        games_as_white = player_games_history[player_games_history['player_color'] == 'white']
 
         # Calculate win rate, draw rate, and loss rate for playing as white
         total_games_as_white = len(games_as_white)
@@ -533,7 +550,7 @@ if players and 'selected_option' in locals() and selected_option != "Select a pl
         avg_opponent_rating_loss_white = games_as_white[games_as_white['result'] == 0.0]['opponent_rating'].mean()
 
         # Filter games where the player played as black
-        games_as_black = player_games_history[player_games_history['color'] == 'B']
+        games_as_black = player_games_history[player_games_history['player_color'] == 'black']
 
         # Calculate win rate, draw rate, and loss rate for playing as black
         total_games_as_black = len(games_as_black)
@@ -557,17 +574,21 @@ if players and 'selected_option' in locals() and selected_option != "Select a pl
         metric_card('Draw Rate (White)', f"{draw_rate_white:.2f}%", metrics_col2)
         metric_card('Loss Rate (White)', f"{loss_rate_white:.2f}%", metrics_col3)
 
-        # Metrics for playing as black
-        metrics_col4, metrics_col5, metrics_col6 = st.columns(3)
-        metric_card('Win Rate (Black)', f"{win_rate_black:.2f}%", metrics_col4)
-        metric_card('Draw Rate (Black)', f"{draw_rate_black:.2f}%", metrics_col5)
-        metric_card('Loss Rate (Black)', f"{loss_rate_black:.2f}%", metrics_col6)
-
         # Opponent metrics for playing as white
         opponent_metrics_col1, opponent_metrics_col2, opponent_metrics_col3 = st.columns(3)
         metric_card('Average Opponent Rating (When Winning as White)', f"{avg_opponent_rating_win_white:.2f}", opponent_metrics_col1)
         metric_card('Average Opponent Rating (When Drawing as White)', f"{avg_opponent_rating_draw_white:.2f}", opponent_metrics_col2)
         metric_card('Average Opponent Rating (When Losing as White)', f"{avg_opponent_rating_loss_white:.2f}", opponent_metrics_col3)
+        
+        st.write(" ")
+        st.write(" ")
+        st.subheader('Playing with Black Pieces')
+
+        # Metrics for playing as black
+        metrics_col4, metrics_col5, metrics_col6 = st.columns(3)
+        metric_card('Win Rate (Black)', f"{win_rate_black:.2f}%", metrics_col4)
+        metric_card('Draw Rate (Black)', f"{draw_rate_black:.2f}%", metrics_col5)
+        metric_card('Loss Rate (Black)', f"{loss_rate_black:.2f}%", metrics_col6)
 
         # Opponent metrics for playing as black
         opponent_metrics_col4, opponent_metrics_col5, opponent_metrics_col6 = st.columns(3)
@@ -576,22 +597,10 @@ if players and 'selected_option' in locals() and selected_option != "Select a pl
         metric_card('Average Opponent Rating (When Losing as Black)', f"{avg_opponent_rating_loss_black:.2f}", opponent_metrics_col6)
 
         
-        # Assuming player_games_history['result'] contains the game outcomes as float (1.0 for win, 0.5 for draw, 0.0 for loss)
-
-        # Calculating result counts
-        results_counts = player_games_history['result'].value_counts()
-
-        # Extracting counts for win, draw, and loss
-        win_count = results_counts.get(1.0, 0)
-        draw_count = results_counts.get(0.5, 0)
-        loss_count = results_counts.get(0.0, 0)
-
-        # You can display these counts similarly to how you've displayed the rates
-        metric_card('Wins (Count)', f"{win_count}", metrics_col1)  
-        metric_card('Draws (Count)', f"{draw_count}", metrics_col2)  
-        metric_card('Losses (Count)', f"{loss_count}", metrics_col3)  
         
         # Display Games History Section
+        st.write(" ")
+        st.write(" ")
         st.header('Games History')
 
         # Ensure numeric columns are of a numeric dtype
