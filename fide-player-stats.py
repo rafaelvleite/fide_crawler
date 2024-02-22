@@ -17,10 +17,11 @@ def remove_duplicates_in_db():
     with sqlite3.connect('./db/fide_data.db') as conn:
         cursor = conn.cursor()
 
-        # Ativar temporariamente suporte a chaves estrangeiras, se necessário
+        # Temporarily enable support for foreign keys (if needed)
         cursor.execute('PRAGMA foreign_keys = ON;')
 
-        # Etapa 1: Identificar e excluir duplicatas
+        # Step 1: Identify and delete duplicates
+        # This SQL statement selects duplicates based on your criteria and deletes all but the first occurrence
         delete_sql = """
         DELETE FROM game_history
         WHERE id IN (
@@ -29,28 +30,28 @@ def remove_duplicates_in_db():
                 SELECT id,
                        ROW_NUMBER() OVER (
                            PARTITION BY date, tournament_name, player_name, opponent_name, result
-                           ORDER BY id -- Ajuste isso para manter o registro que deseja (por exemplo, o mais antigo ou o mais recente)
+                           ORDER BY id -- Adjust this to keep the record you want (e.g., the earliest or latest)
                        ) AS rn
                 FROM game_history
             ) 
-            WHERE rn > 1 -- Isso mantém a primeira ocorrência e marca as subsequentes para exclusão
+            WHERE rn > 1 -- This keeps the first occurrence and marks subsequent ones for deletion
         );
         """
         cursor.execute(delete_sql)
         conn.commit()
 
-def get_binary_file_downloader_html(bin_file, file_label='Arquivo'):
+def get_binary_file_downloader_html(bin_file, file_label='File'):
     with open(bin_file, 'rb') as f:
         data = f.read()
     bin_str = base64.b64encode(data).decode()
-    href = f'<a href="data:application/octet-stream;base64,{bin_str}" download="{os.path.basename(bin_file)}">Baixar {file_label}</a>'
+    href = f'<a href="data:application/octet-stream;base64,{bin_str}" download="{os.path.basename(bin_file)}">Download {file_label}</a>'
     return href
 
 def initialize_database():
     conn = sqlite3.connect('./db/fide_data.db')
     cursor = conn.cursor()
 
-    # Criar a tabela player_data se ela não existir
+    # Create the player_data table if it doesn't exist
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS player_data (
         fide_id TEXT PRIMARY KEY,
@@ -67,7 +68,7 @@ def initialize_database():
     );
     ''')
 
-    # Criar a tabela game_history se ela não existir
+    # Create the game_history table if it doesn't exist
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS game_history (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -92,24 +93,25 @@ def initialize_database():
     conn.close()
     
 def displayProfilePhoto(base64_image):
-    # Remover o prefixo da string Base64
+    # Strip the prefix from the Base64 string
     base64_image = base64_image.split(",")[1]
 
-    # Decodificar a string Base64
+    # Decode the Base64 string
     image_data = base64.b64decode(base64_image)
 
-    # Converter para uma imagem PIL
+    # Convert to a PIL image
     image = Image.open(BytesIO(image_data))
 
-    # Exibir a imagem no Streamlit
+    # Display the image in Streamlit
     st.image(image, width=350)
 
 @st.cache(allow_output_mutation=True)    
 def getPlayersFromQuery(query):
-    # Definir a URL para a consulta de pesquisa
+
+    # Set the URL for the search query
     url = "https://fide.com/search"
 
-    # Cabeçalhos com base nas informações fornecidas
+    # Headers based on the information provided
     headers = {
         'Accept': 'application/json, text/plain, */*',
         'Accept-Encoding': 'gzip, deflate, br',
@@ -123,48 +125,48 @@ def getPlayersFromQuery(query):
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
     }
 
-    # Os parâmetros da consulta
+    # The query parameters
     params = {'query': query}
 
-    # Fazer a requisição GET
+    # Making the GET request
     response = requests.get(url, headers=headers, params=params)
 
-    # Verificar se a requisição foi bem-sucedida
+    # Checking if the request was successful
     if response.status_code == 200:
         soup = BeautifulSoup(response.content, 'html.parser')
         search_blocks = soup.find_all('div', class_='member-block')
     
-        # Inicializar uma lista para armazenar informações do jogador
+        # Initialize a list to store player information
         players = []
 
         for block in search_blocks:
             player_entries = block.find_all(class_="member-block__one")
             
             for entry in player_entries:
-                # Extrair o nome do jogador
+                # Extract player name
                 player_name = entry.find(class_="member-block-info-position").get_text(strip=True)
                 
-                # Extrair o título do jogador, se disponível
+                # Extract player title if available
                 player_title = entry.find(class_="member-block-info-name")
-                player_title = player_title.get_text(strip=True) if player_title else "Sem título"
+                player_title = player_title.get_text(strip=True) if player_title else "No title"
                 
-                # Extrair a URL do perfil do jogador
+                # Extract player profile URL
                 player_url = entry.find('a')['href']
                 
-                # Extrair o ID do jogador da URL usando regex
+                # Extract player ID from URL using regex
                 player_id_match = re.search(r'/profile/(\d+)', player_url)
-                player_id = player_id_match.group(1) if player_id_match else "Sem ID"
+                player_id = player_id_match.group(1) if player_id_match else "No ID"
 
-                # Anexar as informações extraídas à lista de jogadores
+                # Append the extracted information to the players list
                 if 'profile' in player_url and 'news' not in player_url:
                     players.append({
                         'name': player_name,
                         'title': player_title,
                         'url': player_url,
-                        'id': player_id  # Adicionar ID do jogador ao dicionário
+                        'id': player_id  # Add player ID to the dictionary
                     })   
     else:
-        print(f"Falha ao recuperar dados. Código de status: {response.status_code}")
+        print(f"Failed to retrieve data. Status code: {response.status_code}")
 
     return players
 
@@ -174,7 +176,7 @@ def scrapePlayerData(fide_id):
     soup = BeautifulSoup(html, 'html.parser')
 
     player_data = {}
-    player_data = {'fide_id': fide_id}  # Incluir o fide_id no player_data
+    player_data = {'fide_id': fide_id}  # Include the fide_id in the player_data
     player_data['name'] = soup.find('div', class_='profile-top-title').text.strip()
     player_data['world_rank'] = soup.find('div', text='World Rank (Active):').find_next_sibling('div').text
     player_data['federation'] = soup.find('div', text='Federation:').find_next_sibling('div').text
@@ -186,7 +188,7 @@ def scrapePlayerData(fide_id):
     src_value = img_tag['src'] if img_tag else None
     player_data['profile_photo'] = src_value
 
-    # Extrair informações de classificação
+    # Extracting rating info
     ratings = soup.select('.profile-top-rating-data')
     for rating in ratings:
         rating_type = rating.find('span').text.strip().lower()  
@@ -200,7 +202,7 @@ def getPlayerData(fide_id):
     with sqlite3.connect('./db/fide_data.db') as conn:
         cursor = conn.cursor()
 
-        # Verificar se os dados do jogador já existem
+        # Check if player data already exists
         cursor.execute("SELECT * FROM player_data WHERE fide_id = ?", (fide_id,))
         player_data = cursor.fetchone()
 
@@ -209,9 +211,9 @@ def getPlayerData(fide_id):
                     'std_rating', 'rapid_rating', 'blitz_rating', 'profile_photo', 'world_rank' ]
             return dict(zip(keys, player_data))
         else:
-            # Sua lógica de web scraping aqui para buscar dados do jogador
+            # Your web scraping logic here to fetch player data
             fetched_player_data = scrapePlayerData(fide_id)
-            # Após buscar, inserir os dados no banco de dados
+            # After fetching, insert the data into the database
             cursor.execute("INSERT INTO player_data (fide_id, name, federation, b_year, sex, fide_title, std_rating, rapid_rating, blitz_rating, profile_photo, world_rank) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
                            (fetched_player_data['fide_id'], fetched_player_data['name'], fetched_player_data['federation'], fetched_player_data['b_year'], fetched_player_data['sex'], fetched_player_data['fide_title'], fetched_player_data['std_rating'], fetched_player_data['rapid_rating'], fetched_player_data['blitz_rating'], fetched_player_data['profile_photo'], fetched_player_data['world_rank']))
             conn.commit()
@@ -228,7 +230,7 @@ def scrapePlayerGamesHistory(fide_id, playerName, startingPeriod, endPeriod):
         fullDateRange.append(firstDayOfMonth.strftime("%Y-%m-%d"))
         walkingDate = walkingDate + relativedelta.relativedelta(months=1)
 
-    # Colunas atualizadas do DataFrame para refletir detalhes do jogo
+    # Updated DataFrame columns to reflect game-level details
     gameDf = pd.DataFrame(columns=['date', 'tournament_name', 'country', 'player_name', 'player_rating', 'player_color', 'opponent_name', 'opponent_rating', 'result', 'chg', 'k', 'k_chg'])
 
     allLinks = []
@@ -241,7 +243,7 @@ def scrapePlayerGamesHistory(fide_id, playerName, startingPeriod, endPeriod):
         fullTable = parsed_html.find('table', attrs={'class': 'calc_table'})
         if fullTable is not None:
             tableDf = pd.read_html(fullTable.prettify())[0]
-            tableDf.drop(tableDf.index[tableDf['Unnamed: 0'] == "*  Diferença de classificação de mais de 400."], inplace=True)
+            tableDf.drop(tableDf.index[tableDf['Unnamed: 0'] == "*  Rating difference of more than 400."], inplace=True)
             tableDf.reset_index(inplace=True, drop=True)
             limiters = tableDf.isnull().all(1)
             limiters = limiters[limiters == True].index.values.tolist()
@@ -250,7 +252,7 @@ def scrapePlayerGamesHistory(fide_id, playerName, startingPeriod, endPeriod):
             
             for img_tag in colors:
                 src = img_tag.get('src')
-                color = 'branco' if 'clr_wh' in src else 'preto'
+                color = 'white' if 'clr_wh' in src else 'black'
                 retrievedColors.append(color)
             
             colorIndex = 0
@@ -264,7 +266,7 @@ def scrapePlayerGamesHistory(fide_id, playerName, startingPeriod, endPeriod):
                 else:
                     localDf = tableDf.iloc[limiter + 1:, :]
                 
-                # Iterar sobre cada jogo no torneio
+                # Iterate over each game in the tournament
                 for _, row in localDf.iterrows():
                     game_details = {
                         'date': tournament_date,
@@ -298,41 +300,41 @@ def getPlayerGamesHistory(fide_id, playerName, startingPeriod, endPeriod):
     with sqlite3.connect('./db/fide_data.db') as conn:
         cursor = conn.cursor()
 
-        # Garantir que as datas de entrada estejam no início de seus respectivos meses
+        # Ensure input dates are at the start of their respective months
         startingPeriod = datetime.strptime(startingPeriod, "%Y-%m-%d").replace(day=1)
         endPeriod = datetime.strptime(endPeriod, "%Y-%m-%d").replace(day=1)
 
-        # Verificar as datas de jogo mais antigas e mais recentes no banco de dados para o jogador
+        # Check the earliest and latest game dates in the database for the player
         cursor.execute("SELECT MIN(date), MAX(date) FROM game_history WHERE fide_id = ?", (fide_id,))
         min_max_date = cursor.fetchone()
 
         if min_max_date[0] is None or min_max_date[1] is None:
-            # Se nenhum dado existir, buscar pelo período solicitado inteiro
+            # If no data exists, fetch for the entire requested period
             fetched_games_df = scrapePlayerGamesHistory(fide_id, playerName, startingPeriod.strftime('%Y-%m-%d'), endPeriod.strftime('%Y-%m-%d'))
             insertGameData(cursor, fetched_games_df, fide_id)
         else:
             db_start_date, db_end_date = [datetime.strptime(date, "%Y-%m-%d") for date in min_max_date]
 
-            # Buscar e inserir dados para o período antes do registro mais antigo, se necessário
+            # Fetch and insert data for the period before the earliest record if needed
             if db_start_date > startingPeriod:
                 fetched_games_df_before = scrapePlayerGamesHistory(fide_id, playerName, startingPeriod.strftime('%Y-%m-%d'), (db_start_date - relativedelta.relativedelta(days=1)).strftime('%Y-%m-%d'))
                 insertGameData(cursor, fetched_games_df_before, fide_id)
 
-            # Buscar e inserir dados para o período após o registro mais recente, se necessário
+            # Fetch and insert data for the period after the latest record if needed
             if db_end_date < endPeriod:
                 fetched_games_df_after = scrapePlayerGamesHistory(fide_id, playerName, (db_end_date + relativedelta.relativedelta(days=1)).strftime('%Y-%m-%d'), endPeriod.strftime('%Y-%m-%d'))
                 insertGameData(cursor, fetched_games_df_after, fide_id)
 
         conn.commit()
 
-        # Recuperar e retornar os dados completos para o período solicitado
+        # Retrieve and return the complete data for the requested period
         cursor.execute("SELECT * FROM game_history WHERE fide_id = ? AND date BETWEEN ? AND ?", (fide_id, startingPeriod.strftime('%Y-%m-%d'), endPeriod.strftime('%Y-%m-%d')))
         games = cursor.fetchall()
         if games:
             games_df = pd.DataFrame(games, columns=['id', 'fide_id', 'date', 'tournament_name', 'country', 'player_name', 'player_rating', 'player_color', 'opponent_name', 'opponent_rating', 'result', 'chg', 'k', 'k_chg'])
             return games_df
         else:
-            return pd.DataFrame()  # Retornar um DataFrame vazio se nenhum jogo for encontrado
+            return pd.DataFrame()  # Return an empty DataFrame if no games are found
 
 def insertGameData(cursor, games_df, fide_id):
     if not games_df.empty:
@@ -353,19 +355,19 @@ def metric_card(title, value, col):
             padding: 0em;
             background-color: #ffffff;
             box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-            width: 100%; /* Torna a largura do cartão responsiva */
-            box-sizing: border-box; /* Inclui padding e borda na largura e altura total do elemento */
-            margin-top: 0.5em; /* Adiciona espaço entre os cartões */
+            width: 100%; /* Makes the card width responsive */
+            box-sizing: border-box; /* Includes padding and border in the element's total width and height */
+            margin-top: 0.5em; /* Adds space between cards */
         }}
         .metric-title {{
             color: #0e1117;
             margin-bottom: 0em;
-            font-size: 1rem; /* Tamanho de fonte responsivo */
+            font-size: 1rem; /* Responsive font size */
         }}
         .metric-value {{
             color: #0e1117;
             margin-top: 0;
-            font-size: 1.5rem; /* Tamanho de fonte responsivo */
+            font-size: 1.5rem; /* Responsive font size */
             font-weight: bold;
         }}
     </style>
@@ -377,27 +379,27 @@ def metric_card(title, value, col):
 
 def plot_rating_time_series(games_df):
     if not games_df.empty:
-        # Garantir que 'Date' esteja no formato datetime e 'Player Rating' seja numérico
+        # Ensure 'Date' is in datetime format and 'Player Rating' is numeric
         games_df['date'] = pd.to_datetime(games_df['date'])
         games_df['player_rating'] = pd.to_numeric(games_df['player_rating'], errors='coerce')
 
-        # Ordenar o DataFrame por 'Date' para garantir que o gráfico siga a ordem cronológica
+        # Sort the DataFrame by 'Date' to ensure the plot follows chronological order
         games_df.sort_values('date', inplace=True)
 
         plt.figure(figsize=(10, 4))
         plt.plot(games_df['date'], games_df['player_rating'], marker='o', linestyle='-')
 
-        # Opcionalmente, inverter o eixo y, se desejado - para remover essa inversão, comente ou remova a próxima linha
-        # plt.gca().invert_yaxis()  # Descomente esta linha se você realmente quiser inverter o eixo y
+        # Optionally, invert the y-axis if desired - to remove this inversion, comment out or remove the next line
+        # plt.gca().invert_yaxis()  # Uncomment this line if you actually want to invert the y-axis
 
-        plt.title('Classificação Padrão ao Longo do Tempo')
-        plt.xlabel('Data')
-        plt.ylabel('Classificação Padrão')
+        plt.title('Standard Rating Over Time')
+        plt.xlabel('Date')
+        plt.ylabel('Standard Rating')
         plt.grid(True)
         plt.tight_layout()
         st.pyplot(plt)
     else:
-        st.write("Nenhum dado de classificação disponível para plotar.")
+        st.write("No rating data available to plot.")
 
 def clean_and_prepare_dataframe(df):
     if not df.empty:
@@ -408,7 +410,7 @@ def clean_and_prepare_dataframe(df):
         df.reset_index(drop=True, inplace=True)
     return df
 
-# Função para criar gráficos de pizza
+# Function to create pie charts
 def create_pie_chart(sizes, labels, title):
     fig, ax = plt.subplots()
     ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90)
@@ -416,82 +418,82 @@ def create_pie_chart(sizes, labels, title):
     plt.title(title)
     return fig
 
-# Função Aprimorada para Criar um Gráfico de Barras
+# Enhanced Function to Create a Bar Chart
 def create_enhanced_bar_chart(values, categories, title):
     fig, ax = plt.subplots(figsize=(16, 6))
-    colors = ['azul', 'laranja', 'verde', 'vermelho', 'roxo', 'marrom', 'rosa']
+    colors = ['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink']
     ax.bar(categories, values, color=colors)
-    ax.set_ylabel('Classificação Média do Oponente')
+    ax.set_ylabel('Average Opponent Rating')
     ax.set_title(title)
     plt.xticks(rotation=45)
     for i, v in enumerate(values):
         ax.text(i, v + 3, f"{v:.0f}", ha='center', va='bottom')
     return fig
 
-# Inicializar o banco de dados e as tabelas
+# Initialize the database and tables
 initialize_database()
 remove_duplicates_in_db()
 
 st.set_page_config(layout="wide")
 
-# Barra lateral para entradas
+# Sidebar for inputs
 players = []
 with st.sidebar:
-    st.title('Pesquisar Jogador da FIDE')
-    query = st.text_input('Digite o Sobrenome do Jogador:')
-    starting_date = st.date_input('Data de Início', value=datetime.now() - relativedelta.relativedelta(years=1))
-    end_date = st.date_input('Data de Fim', value=datetime.now())
-    # Ajustar datas para o primeiro dia do mês
+    st.title('Search for FIDE Player')
+    query = st.text_input('Enter Player Surename:')
+    starting_date = st.date_input('Start Date', value=datetime.now() - relativedelta.relativedelta(years=1))
+    end_date = st.date_input('End Date', value=datetime.now())
+    # Adjust dates to the first day of the month
     starting_date = starting_date.replace(day=1)
     end_date = end_date.replace(day=1)
 
-    if query:  # Proceder apenas se uma consulta for inserida
-        with st.spinner('Pesquisando jogadores...'):
+    if query:  # Only proceed if a query has been entered
+        with st.spinner('Searching for players...'):
             players = getPlayersFromQuery(query)
         
         if players:
-            player_options = ["Selecione um jogador..."] + [f"{player['name']} ({player['title']})" for player in players]
-            selected_option = st.selectbox('Selecione um jogador:', player_options)
+            player_options = ["Select a player..."] + [f"{player['name']} ({player['title']})" for player in players]
+            selected_option = st.selectbox('Select a player:', player_options)
         else:
-            st.write("Nenhum jogador encontrado. Tente uma consulta diferente.")
+            st.write("No players found. Please try a different query.")
 
-# Título do aplicativo Streamlit
-st.title('Estatísticas de Jogadores e Jogos da FIDE')
+# Streamlit app title
+st.title('FIDE Player and Game Statistics')
 
-if players and 'selected_option' in locals() and selected_option != "Selecione um jogador...":
+if players and 'selected_option' in locals() and selected_option != "Select a player...":
     selected_player_info = next(player for player in players if f"{player['name']} ({player['title']})" == selected_option)
     selected_fide_id = selected_player_info['id']
     
-    with st.spinner(f'Buscando dados para {selected_player_info["name"]}...'):
+    with st.spinner(f'Fetching data for {selected_player_info["name"]}...'):
         player_data = getPlayerData(selected_fide_id)
         player_games_history = getPlayerGamesHistory(selected_fide_id, player_data['name'], starting_date.strftime("%Y-%m-%d"), end_date.strftime("%Y-%m-%d"))
         player_games_history = clean_and_prepare_dataframe(player_games_history)
 
-    st.header('Perfil do Jogador')
+    st.header('Player Profile')
     
     col1, col2, col3 = st.columns([1, 1, 1])
     
     with col1:
         displayProfilePhoto(player_data.get('profile_photo', 'N/A'))
 
-    metric_card('Nome', player_data.get('name', 'N/A'), col2)
-    metric_card('Federação', player_data.get('federation', 'N/A'), col2)
-    metric_card('Classificação Mundial', player_data.get('world_rank', 'N/A'), col2)
+    metric_card('Name', player_data.get('name', 'N/A'), col2)
+    metric_card('Federation', player_data.get('federation', 'N/A'), col2)
+    metric_card('World Rank', player_data.get('world_rank', 'N/A'), col2)
 
     b_year = player_data.get('b_year', 'N/A')
-    metric_card('Ano de Nascimento', b_year, col3)
-    metric_card('Título da FIDE', player_data.get('fide_title', 'N/A'), col3)
+    metric_card('Year of Birth', b_year, col3)
+    metric_card('FIDE Title', player_data.get('fide_title', 'N/A'), col3)
         
-    metric_card('Classificação Clássica Atual', player_data.get('std_rating', 'N/A'), col2)
-    metric_card('Classificação Rápida Atual', player_data.get('rapid_rating', 'N/A'), col3)
-    metric_card('Classificação Blitz Atual', player_data.get('blitz_rating', 'N/A'), col3)
+    metric_card('Current Classical Rating', player_data.get('std_rating', 'N/A'), col2)
+    metric_card('Current Rapid Rating', player_data.get('rapid_rating', 'N/A'), col3)
+    metric_card('Current Blitz Rating', player_data.get('blitz_rating', 'N/A'), col3)
     
-    # Garantir que player_games_history esteja ordenado por data
+    # Ensure player_games_history is sorted by date
     player_games_history['date'] = pd.to_datetime(player_games_history['date'])
     player_games_history.sort_values('date', inplace=True)
     player_games_history['player_rating'] = pd.to_numeric(player_games_history['player_rating'], errors='coerce')
 
-    # Calcular e exibir estatísticas de jogo
+    # Calculating and displaying game statistics
     if not player_games_history.empty:
         initial_rating = player_games_history.iloc[0]['player_rating']
         final_rating = player_games_history.iloc[-1]['player_rating']
@@ -501,9 +503,9 @@ if players and 'selected_option' in locals() and selected_option != "Selecione u
         avg_opponent_rating = player_games_history['opponent_rating'].mean()
         player_games_history['result'] = player_games_history['result'].astype(float)
         results = player_games_history['result'].value_counts(normalize=True) * 100
-        taxa_de_vitória = results.get(1.0, 0)
-        taxa_de_empate = results.get(0.5, 0)
-        taxa_de_derrota = results.get(0.0, 0)
+        win_rate = results.get(1.0, 0)
+        draw_rate = results.get(0.5, 0)
+        loss_rate = results.get(0.0, 0)
         
         avg_opponent_rating_win = player_games_history[player_games_history['result'] == 1.0]['opponent_rating'].mean()
         avg_opponent_rating_draw = player_games_history[player_games_history['result'] == 0.5]['opponent_rating'].mean()
@@ -511,56 +513,56 @@ if players and 'selected_option' in locals() and selected_option != "Selecione u
         
         minDateString = player_games_history['date'].min().strftime("%Y-%m-%d")
         maxDateString = player_games_history['date'].max().strftime("%Y-%m-%d")
-        st.header(f'Evolução da Classificação')
-        st.info(f'Jogos encontrados de {minDateString} a {maxDateString}')
+        st.header(f'Rating Evolution')
+        st.info(f'Games found from {minDateString} to {maxDateString}')
         super_metrics_col1, super_metrics_col2, = st.columns([1, 2])  
-        metric_card('Total de Jogos (Contagem)', f"{len(player_games_history)}", super_metrics_col1)
-        metric_card('Classificação Média do Oponente Geral', f"{avg_opponent_rating:.2f}", super_metrics_col1)
-        metric_card('Delta de Classificação', f"{delta_rating}", super_metrics_col1)
+        metric_card('Total Games (Count)', f"{len(player_games_history)}", super_metrics_col1)
+        metric_card('Overall Avg. Opponent Rating', f"{avg_opponent_rating:.2f}", super_metrics_col1)
+        metric_card('Delta Rating', f"{delta_rating}", super_metrics_col1)
         with super_metrics_col2:
             plot_rating_time_series(player_games_history)
             
-        st.header('Estatísticas de Jogo')
-        # Calcular estatísticas para gráficos de pizza
+        st.header('Game Statistics')
+        # Calculating statistics for pie charts
         win_count = len(player_games_history[player_games_history['result'] == 1.0])
         draw_count = len(player_games_history[player_games_history['result'] == 0.5])
         loss_count = len(player_games_history[player_games_history['result'] == 0.0])
 
-        games_as_white = player_games_history[player_games_history['player_color'] == 'branco']
+        games_as_white = player_games_history[player_games_history['player_color'] == 'white']
         win_white = len(games_as_white[games_as_white['result'] == 1.0])
         draw_white = len(games_as_white[games_as_white['result'] == 0.5])
         loss_white = len(games_as_white[games_as_white['result'] == 0.0])
 
-        games_as_black = player_games_history[player_games_history['player_color'] == 'preto']
+        games_as_black = player_games_history[player_games_history['player_color'] == 'black']
         win_black = len(games_as_black[games_as_black['result'] == 1.0])
         draw_black = len(games_as_black[games_as_black['result'] == 0.5])
         loss_black = len(games_as_black[games_as_black['result'] == 0.0])
 
-        # Calcular classificações médias do oponente para gráfico de barras
+        # Calculating average opponent ratings for bar chart
         overall_avg_rating = player_games_history['opponent_rating'].mean()
         white_avg_rating = games_as_white['opponent_rating'].mean()
         black_avg_rating = games_as_black['opponent_rating'].mean()
 
-        # Gráficos de pizza
+        # Pie charts
         col1, col2, col3 = st.columns(3)
         with col1:
-            st.subheader("Desempenho Geral")
-            fig1 = create_pie_chart([win_count, draw_count, loss_count], ['Vitórias', 'Empates', 'Derrotas'], 'Geral')
+            st.subheader("Overall Performance")
+            fig1 = create_pie_chart([win_count, draw_count, loss_count], ['Wins', 'Draws', 'Losses'], 'Overall')
             st.pyplot(fig1)
 
         with col2:
-            st.subheader("Desempenho como Brancas")
-            fig2 = create_pie_chart([win_white, draw_white, loss_white], ['Vitórias', 'Empates', 'Derrotas'], 'Como Brancas')
+            st.subheader("Performance as White")
+            fig2 = create_pie_chart([win_white, draw_white, loss_white], ['Wins', 'Draws', 'Losses'], 'As White')
             st.pyplot(fig2)
 
         with col3:
-            st.subheader("Desempenho como Pretas")
-            fig3 = create_pie_chart([win_black, draw_black, loss_black], ['Vitórias', 'Empates', 'Derrotas'], 'Como Pretas')
+            st.subheader("Performance as Black")
+            fig3 = create_pie_chart([win_black, draw_black, loss_black], ['Wins', 'Draws', 'Losses'], 'As Black')
             st.pyplot(fig3)
-            
-        # Calculando a média detalhada de rating dos oponentes para gráfico de barras
-        categorias = ['Geral', 'Vitória como Brancas', 'Empate como Brancas', 'Derrota como Brancas',
-                    'Vitória como Pretas', 'Empate como Pretas', 'Derrota como Pretas']
+        
+        # Calculating detailed average opponent ratings for bar chart
+        categories = ['Overall', 'Win as White', 'Draw as White', 'Loss as White',
+                    'Win as Black', 'Draw as Black', 'Loss as Black']
 
         overall_avg = player_games_history['opponent_rating'].mean()
 
@@ -572,99 +574,102 @@ if players and 'selected_option' in locals() and selected_option != "Selecione u
         draws_black_avg = player_games_history[(player_games_history['player_color'] == 'black') & (player_games_history['result'] == 0.5)]['opponent_rating'].mean()
         losses_black_avg = player_games_history[(player_games_history['player_color'] == 'black') & (player_games_history['result'] == 0.0)]['opponent_rating'].mean()
 
-        valores = [overall_avg, wins_white_avg, draws_white_avg, losses_white_avg,
+        values = [overall_avg, wins_white_avg, draws_white_avg, losses_white_avg,
                 wins_black_avg, draws_black_avg, losses_black_avg]
 
-        # Gráficos de pizza em colunas para distribuição visual de vitórias, empates e derrotas
+        
+        # Pie charts in columns for visual distribution of wins, draws, and losses
         col1, col2, col3 = st.columns(3)
-        # Usar a função create_pie_chart para col1, col2, col3 como antes
+        # Use create_pie_chart function for col1, col2, col3 as before
 
-        # Gráfico de barras aprimorado para uma comparação detalhada de ratings médios dos oponentes
-        st.subheader("Métricas de Desempenho Detalhadas")
-        fig = create_enhanced_bar_chart(valores, categorias, 'Desempenho Contra Ratings de Oponentes')
+        # Enhanced bar chart for a detailed comparison of average opponent ratings
+        st.subheader("Detailed Performance Metrics")
+        fig = create_enhanced_bar_chart(values, categories, 'Performance Against Opponent Ratings')
         st.pyplot(fig)
 
-        # Seção de Histórico de Jogos
+        # Display Games History Section
         st.write(" ")
         st.write(" ")
-        st.header('Histórico de Jogos')
+        st.header('Games History')
 
-        # Garantir que colunas numéricas sejam do tipo numérico
+        # Ensure numeric columns are of a numeric dtype
         player_games_history['result'] = pd.to_numeric(player_games_history['result'], errors='coerce')
 
-        # Aplicar filtros
-        filtered_games_history = player_games_history.copy()  # Criar uma cópia para evitar modificar o DataFrame original
+        # Apply filters
+        filtered_games_history = player_games_history.copy()  # Create a copy to avoid modifying the original DataFrame
 
-        # Opções de filtro
+        # Filter options
         filter_options = {
-            'Resultado do Jogo': st.multiselect('Selecione o resultado do jogo:', ['Vitória', 'Empate', 'Derrota']),
-            'Nome do Oponente Contém': st.text_input('Digite um substring do nome do oponente:')
+            'Game Result': st.multiselect('Select game result:', ['Win', 'Draw', 'Loss']),
+            'Opponent Name Contains': st.text_input('Enter opponent name substring:')
         }
 
-        # Filtrar por resultado do jogo
-        if 'Resultado do Jogo' in filter_options and filter_options['Resultado do Jogo']:
+        # Filter by game result
+        if 'Game Result' in filter_options and filter_options['Game Result']:
             filtered_results = []
-            if 'Vitória' in filter_options['Resultado do Jogo']:
+            if 'Win' in filter_options['Game Result']:
                 filtered_results.append(1.0)
-            if 'Empate' in filter_options['Resultado do Jogo']:
+            if 'Draw' in filter_options['Game Result']:
                 filtered_results.append(0.5)
-            if 'Derrota' in filter_options['Resultado do Jogo']:
+            if 'Loss' in filter_options['Game Result']:
                 filtered_results.append(0.0)
             filtered_games_history = filtered_games_history[filtered_games_history['result'].isin(filtered_results)]
 
-        # Filtrar por substring do nome do oponente
-        if 'Nome do Oponente Contém' in filter_options and filter_options['Nome do Oponente Contém']:
-            substring = filter_options['Nome do Oponente Contém'].strip().lower()
+        # Filter by opponent name substring
+        if 'Opponent Name Contains' in filter_options and filter_options['Opponent Name Contains']:
+            substring = filter_options['Opponent Name Contains'].strip().lower()
             filtered_games_history = filtered_games_history[filtered_games_history['opponent_name'].str.lower().str.contains(substring)]
-            oponentes_no_filtro = list(filtered_games_history['opponent_name'].unique())
-            oponentes_no_filtro.sort()
-            oponentes_no_filtro = '/ '.join(oponentes_no_filtro)
-            st.info(f'Jogos encontrados contra {oponentes_no_filtro}')
-            num_vitorias = (filtered_games_history['result'] == 1.0).sum()
-            num_empates = (filtered_games_history['result'] == 0.5).sum()
-            num_derrotas = (filtered_games_history['result'] == 0.0).sum()
+            opponents_on_filter = list(filtered_games_history['opponent_name'].unique())
+            opponents_on_filter.sort()
+            opponents_on_filter = '/ '.join(opponents_on_filter)
+            st.info(f'Games found against {opponents_on_filter}')
+            num_wins = (filtered_games_history['result'] == 1.0).sum()
+            num_draws = (filtered_games_history['result'] == 0.5).sum()
+            num_losses = (filtered_games_history['result'] == 0.0).sum()
             scoreCol1, scoreCol2, scoreCol3 = st.columns(3)
-            metric_card('Vitórias (Contagem)', f"{num_vitorias}", scoreCol1)
-            metric_card('Empates (Contagem)', f"{num_empates}", scoreCol2)
-            metric_card('Derrotas (Contagem)', f"{num_derrotas}", scoreCol3)
+            metric_card('Wins (Count)', f"{num_wins}", scoreCol1)
+            metric_card('Draws (Count)', f"{num_draws}", scoreCol2)
+            metric_card('Losses (Count)', f"{num_losses}", scoreCol3)
             
-        # Agora aplicar formatação e exibir o DataFrame filtrado
+        # Now apply formatting and display the filtered DataFrame
         st.table(filtered_games_history[['date', 'tournament_name', 'country', 'player_name', 'player_rating', 'player_color', 'opponent_name', 'opponent_rating', 'result', 'chg', 'k', 'k_chg']])
+        
+    else:
+        st.write("No games found in the specified period.")
 
-else:
-    st.write("Nenhum jogo encontrado no período especificado.")
-
-# Seção de Mensagem Promocional
-st.sidebar.write("---")  # Desenha uma linha horizontal para separação visual
+# Promotional Message Section
+st.sidebar.write("---")  # Draws a horizontal line for visual separation
 st.sidebar.image("XB-logo.png", width=100)
-st.sidebar.header("Melhore Seu Xadrez com o XB PRO")
+st.sidebar.header("Improve Your Chess with XB PRO")
 st.sidebar.write("""
-Procurando elevar seu jogo de xadrez? Confira o [XB PRO](https://xadrezbrasil.com.br) - seu destino final para aprendizado e melhoria no xadrez. Seja você iniciante ou jogador avançado, o XB PRO oferece conteúdo personalizado para ajudá-lo a crescer.
+Looking to elevate your chess game? Check out [XB PRO](https://xadrezbrasil.com.br) - your ultimate destination for chess learning and improvement. Whether you're a beginner or an advanced player, XB PRO offers tailored content to help you grow. 
 """)
-# Usando st.markdown para criar um link que parece um botão
-estilo_do_botao = """
+# Using st.markdown to create a link that looks like a button
+button_style = """
 <a href='https://xadrezbrasil.com.br' target='_blank'>
     <button style='color: white; background-color: #4CAF50; border: none; padding: 10px 20px; text-align: center; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 12px;'>
-        Visite o XB PRO Agora!
+        Visit XB PRO Now!
     </button>
 </a>
 """
-st.sidebar.markdown(estilo_do_botao, unsafe_allow_html=True)
-st.sidebar.write("---")  # Desenha uma linha horizontal para separação visual
+st.sidebar.markdown(button_style, unsafe_allow_html=True)
+st.sidebar.write("---")  # Draws a horizontal line for visual separation
 
-# Caminho para o seu banco de dados SQLite
-caminho_db = './db/fide_data.db'
+# Path to your SQLite database
+db_path = './db/fide_data.db'
 
-# Verificar se o arquivo existe para evitar erros
-#if os.path.isfile(caminho_db):
-    # Maneira do Streamlit de criar um botão de download
-#    with open(caminho_db, "rb") as fp:
+# Check if the file exists to avoid errors
+#if os.path.isfile(db_path):
+    # Streamlit's way to create a download button
+#    with open(db_path, "rb") as fp:
 #        btn = st.sidebar.download_button(
-#            label="Baixar Banco de Dados",
+#            label="Download Database",
 #            data=fp,
 #            file_name="fide_data.db",
 #            mime="application/x-sqlite3"
 #        )
 #else:
-#    st.error("Arquivo do banco de dados não encontrado!")
+#    st.error("Database file not found!")
+
+
 
