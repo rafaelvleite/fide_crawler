@@ -194,8 +194,6 @@ def displayPlayerLast3Tournaments(player_games_history, localization_data):
         localization_data['games_played']
     ]
     
-    tournament_summary[localization_data['avg_opponent_rating']] = tournament_summary[localization_data['avg_opponent_rating']].astype(int)
-
     # Calculate overall performance in the tournament as a string (e.g., "6/7")
     tournament_summary[localization_data['tournament_result']] = tournament_summary.apply(
         lambda x: f"{x[localization_data['points']]:.0f}" if x[localization_data['points']].is_integer() else f"{x[localization_data['points']]}", axis=1
@@ -211,6 +209,7 @@ def displayPlayerLast3Tournaments(player_games_history, localization_data):
     latest_3_tournaments[localization_data['avg_opponent_rating']] = latest_3_tournaments[localization_data['avg_opponent_rating']].apply(lambda x: f"{x:.2f}")
     latest_3_tournaments.reset_index(inplace=True, drop=True)
     latest_3_tournaments.index += 1
+    latest_3_tournaments[localization_data['avg_opponent_rating']] = latest_3_tournaments[localization_data['avg_opponent_rating']].astype(int)
 
     # Display the table of the 3 most recent tournaments
     st.table(latest_3_tournaments[
