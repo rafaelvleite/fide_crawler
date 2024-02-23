@@ -14,7 +14,7 @@ st.set_page_config(layout="wide")
 
 # Barra lateral para entradas de pesquisa
 localization_data, players, query, starting_date, end_date, selected_option = user_input_sidebar()
-displayAd()
+displayAd('pt')
 
 # Título do aplicativo Streamlit
 st.title(localization_data['app_title'])
