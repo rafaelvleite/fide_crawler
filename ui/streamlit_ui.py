@@ -206,10 +206,9 @@ def displayPlayerLast3Tournaments(player_games_history, localization_data):
     latest_3_tournaments = tournament_summary.head(3)
 
     # Format 'Avg Opponent Rating' column to two decimal places
-    latest_3_tournaments[localization_data['avg_opponent_rating']] = latest_3_tournaments[localization_data['avg_opponent_rating']].apply(lambda x: f"{x:.2f}")
+    latest_3_tournaments[localization_data['avg_opponent_rating']] = latest_3_tournaments[localization_data['avg_opponent_rating']].apply(lambda x: int(x))
     latest_3_tournaments.reset_index(inplace=True, drop=True)
     latest_3_tournaments.index += 1
-    latest_3_tournaments[localization_data['avg_opponent_rating']] = latest_3_tournaments[localization_data['avg_opponent_rating']].astype(int)
 
     # Display the table of the 3 most recent tournaments
     st.table(latest_3_tournaments[
