@@ -76,7 +76,6 @@ def user_input_sidebar():
         if st.button('🇧🇷', key='pt'):
             set_language('pt')
 
-    lang = st.session_state.lang
     # Display current language selection
     if 'lang' in st.session_state:
         lang = st.session_state.lang
