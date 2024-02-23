@@ -63,8 +63,8 @@ def user_input_sidebar():
     # Barra lateral para entradas
     players = []
     with st.sidebar:
-        # lang = st.sidebar.selectbox("Choose your language / Escolha o seu idioma", ["en", "pt"])
-        lang = 'pt'
+        lang = st.sidebar.selectbox("Choose your language / Escolha o seu idioma", ["en", "pt"])
+        # lang = 'pt'
         localization_data = load_localization(lang)
         st.title(localization_data['player_search'])
         query = st.text_input(localization_data['surename_input'])
