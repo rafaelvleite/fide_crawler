@@ -193,6 +193,8 @@ def displayPlayerLast3Tournaments(player_games_history, localization_data):
         localization_data['points'],
         localization_data['games_played']
     ]
+    
+    tournament_summary[localization_data['avg_opponent_rating']] = tournament_summary[localization_data['avg_opponent_rating']].astype(int)
 
     # Calculate overall performance in the tournament as a string (e.g., "6/7")
     tournament_summary[localization_data['tournament_result']] = tournament_summary.apply(
