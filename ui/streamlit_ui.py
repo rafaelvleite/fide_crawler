@@ -304,7 +304,7 @@ def displayPlayerGamesHistory(player_games_history, localization_data):
 def displayXbAd():
     # Seção de Mensagem Promocional
     st.sidebar.write("---")  # Desenha uma linha horizontal para separação visual
-    st.sidebar.image("./images/XB-logo.png", width=100)
+    st.sidebar.image("./images/XB-logo.png", width=50)
     st.sidebar.header("Melhore Seu Xadrez com o XB PRO")
     st.sidebar.write("""
     Seja você iniciante ou jogador avançado, o XB PRO oferece conteúdo personalizado para ajudá-lo a crescer.
