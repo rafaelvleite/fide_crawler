@@ -323,24 +323,43 @@ def displayPlayerGamesHistory(player_games_history, localization_data):
     filtered_games_history['date'] = pd.to_datetime(filtered_games_history['date']).dt.strftime('%Y-%m-%d')
     st.table(filtered_games_history[['date', 'tournament_name', 'player_name', 'player_rating', 'player_color', 'opponent_name', 'opponent_rating', 'result', 'chg', 'k', 'k_chg']])
 
-def displayXbAd():
-    # Seção de Mensagem Promocional
-    st.sidebar.write("---")  # Desenha uma linha horizontal para separação visual
-    st.sidebar.image("./images/XB-logo.png", width=50)
-    st.sidebar.header("Melhore Seu Xadrez com o XB PRO")
-    st.sidebar.write("""
-    Seja você iniciante ou jogador avançado, o XB PRO oferece conteúdo personalizado para ajudá-lo a crescer.
-    """)
-    # Usando st.markdown para criar um link que parece um botão
-    estilo_do_botao = """
-    <a href='https://xadrezbrasil.com.br' target='_blank'>
-        <button style='color: white; background-color: #4CAF50; border: none; padding: 10px 20px; text-align: center; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 12px;'>
-            Visite o XB PRO Agora!
-        </button>
-    </a>
-    """
-    st.sidebar.markdown(estilo_do_botao, unsafe_allow_html=True)
-    st.sidebar.write("---")  # Desenha uma linha horizontal para separação visual
+def displayAd(lang):
+    # Promotional Message Section
+    if lang == "pt":
+        st.sidebar.write("---")  # Draws a horizontal line for visual separation
+        st.sidebar.image("./images/XB-logo.png", width=50)
+        st.sidebar.header("Melhore Seu Xadrez com o XB PRO")
+        st.sidebar.write("""
+        Seja você iniciante ou jogador avançado, o XB PRO oferece conteúdo personalizado para ajudá-lo a crescer.
+        """)
+        # Using st.markdown to create a link that looks like a button
+        estilo_do_botao = """
+        <a href='https://xadrezbrasil.com.br' target='_blank'>
+            <button style='color: white; background-color: #4CAF50; border: none; padding: 10px 20px; text-align: center; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 12px;'>
+                Visite o XB PRO Agora!
+            </button>
+        </a>
+        """
+        st.sidebar.markdown(estilo_do_botao, unsafe_allow_html=True)
+        st.sidebar.write("---")  # Draws a horizontal line for visual separation
+
+    elif lang == "en":
+        st.sidebar.write("---")  # Draws a horizontal line for visual separation
+        st.sidebar.image("./images/XB-logo.png", width=50)
+        st.sidebar.header("Improve Your Chess with Master Move App")
+        st.sidebar.write("""
+        Whether you're a beginner or an advanced player, Master Move App offers personalized content to help you grow.
+        """)
+        # Using st.markdown to create a link that looks like a button
+        button_style = """
+        <a href='https://mastermoveapp.com' target='_blank'>
+            <button style='color: white; background-color: #4CAF50; border: none; padding: 10px 20px; text-align: center; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 12px;'>
+                Visit Master Move App Now!
+            </button>
+        </a>
+        """
+        st.sidebar.markdown(button_style, unsafe_allow_html=True)
+        st.sidebar.write("---")  # Draws a horizontal line for visual separation
     
 def displayDownloadDbButton():
     # Caminho para o seu banco de dados SQLite
