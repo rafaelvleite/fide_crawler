@@ -102,11 +102,14 @@ def user_input_sidebar():
             if players:
                 player_options = [localization_data['player_select']] + [f"{player['name']} ({player['title']})" for player in players]
                 selected_option = st.selectbox(localization_data['player_select_title'], player_options)
+                displayAd(lang)
             else:
                 st.write(localization_data['player_not_found'])
+                displayAd(lang)
                 return localization_data, None, None, None, None, None
             return localization_data, players, query, starting_date, end_date, selected_option
         else:
+            displayAd(lang)
             return localization_data, None, None, None, None, None
         
 def displayPlayerProfile(players, selected_option, starting_date, end_date, localization_data):
