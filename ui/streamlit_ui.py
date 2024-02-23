@@ -168,38 +168,52 @@ def displayPlayerELOEvolution(player_games_history, localization_data):
     with super_metrics_col2:
         plot_rating_time_series(player_games_history, localization_data)
     
-def displayPlayerLast3Tournments(player_games_history, localization_data):
+def displayPlayerLast3Tournaments(player_games_history, localization_data):
     st.header(localization_data['latest_3_tournments'])
 
     if len(player_games_history) == 0:
         st.write(localization_data['insufficient_data'])
         return
-    # Agrupar jogos por nome do torneio e data
+
+    # Convert result to float and date to datetime format
     player_games_history['result'] = player_games_history['result'].astype(float)
     player_games_history['date'] = pd.to_datetime(player_games_history['date']).dt.strftime('%Y-%m-%d')
+
+    # Group games by tournament name and date
     tournament_summary = player_games_history.groupby(['tournament_name', 'date']).agg({
-        'opponent_rating': 'mean',  # Média do rating do oponente
-        'result': ['sum', 'count']  # Soma dos resultados para calcular pontos e contagem para o número de jogos
+        'opponent_rating': 'mean',  # Average opponent rating
+        'result': ['sum', 'count']  # Sum of results to calculate points and count for number of games
     }).reset_index()
 
-    # Renomear colunas para refletir as métricas agregadas
-    tournament_summary.columns = ['Nome do Torneio', 'Data', 'Média de Rating do Adverário', 'Pontos', 'Partidas Jogadas']
+    # Rename columns to reflect aggregated metrics
+    tournament_summary.columns = [
+        localization_data['tournament_name'], 
+        localization_data['date'], 
+        localization_data['avg_opponent_rating'], 
+        localization_data['points'],  # Assuming 'points' key exists for "Points"
+        localization_data['games_played']  # Assuming 'games_played' key exists for "Games Played"
+    ]
 
-    # Calcular a performance geral no torneio como uma string (ex: "6/7")
-    tournament_summary['Resultado'] = tournament_summary.apply(lambda x: f"{x['Pontos']:.0f}" if x['Pontos'].is_integer() else f"{x['Pontos']}", axis=1) + "/" + tournament_summary['Partidas Jogadas'].astype(str)
+    # Calculate overall performance in the tournament as a string (e.g., "6/7")
+    tournament_summary[localization_data['tournament_result']] = tournament_summary.apply(
+        lambda x: f"{x[localization_data['points']]:.0f}" if x[localization_data['points']].is_integer() else f"{x[localization_data['points']]}", axis=1
+    ) + "/" + tournament_summary[localization_data['games_played']].astype(str)
 
-    # Ordenar os torneios pela data, do mais recente para o mais antigo
-    tournament_summary.sort_values('Data', ascending=False, inplace=True)
+    # Sort tournaments by date, from most recent to oldest
+    tournament_summary.sort_values(localization_data['date'], ascending=False, inplace=True)
 
-    # Selecionar os 3 torneios mais recentes
+    # Select the 3 most recent tournaments
     latest_3_tournaments = tournament_summary.head(3)
 
-    # Formatar a coluna 'Avg Opponent Rating' para duas casas decimais
-    latest_3_tournaments['Média de Rating do Adverário'] = latest_3_tournaments['Média de Rating do Adverário'].apply(lambda x: f"{x:.2f}")
+    # Format 'Avg Opponent Rating' column to two decimal places
+    latest_3_tournaments[localization_data['avg_opponent_rating']] = latest_3_tournaments[localization_data['avg_opponent_rating']].apply(lambda x: f"{x:.2f}")
     latest_3_tournaments.reset_index(inplace=True, drop=True)
     latest_3_tournaments.index += 1
-    # Exibir a tabela dos 3 torneios mais recentes
-    st.table(latest_3_tournaments[['Data', 'Nome do Torneio', 'Média de Rating do Adverário', 'Resultado']])
+
+    # Display the table of the 3 most recent tournaments
+    st.table(latest_3_tournaments[
+        [localization_data['date'], localization_data['tournament_name'], localization_data['avg_opponent_rating'], 'Resultado']
+    ])
     
 def displayPlayerPerformance(player_games_history, localization_data):
     if len(player_games_history) == 0:
