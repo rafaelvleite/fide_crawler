@@ -3,7 +3,7 @@ from database.database_management import initialize_database, remove_duplicates_
 from localization.localization import load_localization
 from ui.streamlit_ui import user_input_sidebar, displayPlayerProfile, displayPlayerELOEvolution,\
         displayPlayerLast3Tournments, displayPlayerPerformanceDetails, displayPlayerGamesHistory, \
-        displayAd, displayDownloadDbButton
+        displayDownloadDbButton
 
 # Inicializar o banco de dados e as tabelas
 initialize_database()
@@ -14,7 +14,6 @@ st.set_page_config(layout="wide")
 
 # Barra lateral para entradas de pesquisa
 localization_data, players, query, starting_date, end_date, selected_option = user_input_sidebar()
-displayAd()
 
 # Título do aplicativo Streamlit
 st.title(localization_data['app_title'])

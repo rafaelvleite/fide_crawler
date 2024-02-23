@@ -81,7 +81,7 @@ def user_input_sidebar():
         lang = st.session_state.lang
     else:
         lang = 'pt'
-    
+            
     # Barra lateral para entradas
     players = []
     with st.sidebar:
@@ -95,18 +95,17 @@ def user_input_sidebar():
         # Ajustar datas para o primeiro dia do mês
         starting_date = starting_date   .replace(day=1)
         end_date = end_date.replace(day=1)
+        displayAd(lang)
 
         if query:  # Proceder apenas se uma consulta for inserida
             with st.spinner(localization_data['player_searching']):
                 players = fetch_players(query)
-            
             if players:
                 player_options = [localization_data['player_select']] + [f"{player['name']} ({player['title']})" for player in players]
                 selected_option = st.selectbox(localization_data['player_select_title'], player_options)
             else:
                 st.write(localization_data['player_not_found'])
                 return localization_data, None, None, None, None, None
-    
             return localization_data, players, query, starting_date, end_date, selected_option
         else:
             return localization_data, None, None, None, None, None
