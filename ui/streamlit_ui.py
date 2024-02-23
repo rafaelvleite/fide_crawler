@@ -169,7 +169,7 @@ def displayPlayerELOEvolution(player_games_history, localization_data):
         plot_rating_time_series(player_games_history, localization_data)
     
 def displayPlayerLast3Tournaments(player_games_history, localization_data):
-    st.header(localization_data['latest_3_tournments'])
+    st.header(localization_data['latest_3_tournaments'])
 
     if len(player_games_history) == 0:
         st.write(localization_data['insufficient_data'])

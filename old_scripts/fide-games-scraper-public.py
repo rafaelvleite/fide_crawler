@@ -56,7 +56,7 @@ def google_search(search_term, api_key=my_api_key, cse_id=my_cse_id, **kwargs):
 
 
 
-playerDf = pd.DataFrame(columns = ['Date', 'Tournment Name', 'Player Rating', 'Performance Rating', 'Opponents Average Rating', 'Number of Games', 'Points', 'Points/Games', 'DGT'])
+playerDf = pd.DataFrame(columns = ['Date', 'Tournament Name', 'Player Rating', 'Performance Rating', 'Opponents Average Rating', 'Number of Games', 'Points', 'Points/Games', 'DGT'])
 
 allLinks = []
 for stringDate in fullDateRange:
@@ -80,8 +80,8 @@ for link in allLinks:
                 localDf = tableDf.iloc[limiter+1:limiters[limiters.index(limiter)+1]-3,:]
             else:
                 localDf = tableDf.iloc[limiter+1:,:]
-            tournment_name = tableDf.iloc[limiter-3,0]
-            tournment_date = tableDf.iloc[limiter-3,7]
+            tournament_name = tableDf.iloc[limiter-3,0]
+            tournament_date = tableDf.iloc[limiter-3,7]
             player_rating = tableDf.iloc[limiter-1,1]
             opponentsAverageRating = tableDf.iloc[limiter-1,0]
             numberOfGames = len(localDf)
@@ -94,9 +94,9 @@ for link in allLinks:
             totalLosses = sum([x for x in pointsValues if x == 0])
             performance = ratingPerformance(int(numberOfGames), float(points), int(opponentsAverageRating), ratingSum, totalWins, totalLosses)
             
-            playerLocalDf = pd.DataFrame(index=range(1), columns = ['Date', 'Tournment Name', 'Player Rating', 'Performance Rating', 'Opponents Average Rating', 'Number of Games', 'Points', 'Points/Games', 'DGT'])
-            playerLocalDf['Date'] = tournment_date
-            playerLocalDf['Tournment Name'] = tournment_name
+            playerLocalDf = pd.DataFrame(index=range(1), columns = ['Date', 'Tournament Name', 'Player Rating', 'Performance Rating', 'Opponents Average Rating', 'Number of Games', 'Points', 'Points/Games', 'DGT'])
+            playerLocalDf['Date'] = tournament_date
+            playerLocalDf['Tournament Name'] = tournament_name
             playerLocalDf['Player Rating'] = player_rating
             playerLocalDf['Performance Rating'] = performance
             playerLocalDf['Opponents Average Rating'] = opponentsAverageRating
@@ -120,9 +120,9 @@ dgtInfoList = []
 dgtLinkList = []
 dgtRatioList = []
 
-for tournment in list(playerDf['Tournment Name'].values):
-    print(tournment)
-    text = (tournment).lower()
+for tournament in list(playerDf['Tournament Name'].values):
+    print(tournament)
+    text = (tournament).lower()
     
     dgt = 0
     dgtInfo = ''
