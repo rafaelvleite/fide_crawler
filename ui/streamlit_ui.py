@@ -60,10 +60,33 @@ def metric_card(title, value, col):
     """, unsafe_allow_html=True)
 
 def user_input_sidebar():
+    # Dummy function to mimic setting a language; replace with actual logic
+    def set_language(language_code):
+        st.session_state.lang = language_code
+
+    # Use columns to align flags on the right
+    col1, col2, col3 = st.columns([1, 0.1, 0.1])  # Adjust spacing as needed
+
+    # Use the empty columns for spacing and the last two columns for flags
+    with col2:
+        if st.button('🇺🇸', key='en'):
+            set_language('en')
+            
+    with col3:
+        if st.button('🇧🇷', key='pt'):
+            set_language('pt')
+
+    lang = st.session_state.lang
+    # Display current language selection
+    if 'lang' in st.session_state:
+        lang = st.session_state.lang
+    else:
+        lang = 'pt'
+    
     # Barra lateral para entradas
     players = []
     with st.sidebar:
-        lang = st.sidebar.selectbox("Escolha o seu idioma / Choose your language", ["pt", "en"])
+        # lang = st.sidebar.selectbox("Escolha o seu idioma / Choose your language", ["pt", "en"])
         # lang = 'pt'
         localization_data = load_localization(lang)
         st.title(localization_data['player_search'])
