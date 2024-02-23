@@ -307,7 +307,7 @@ def displayXbAd():
     st.sidebar.image("./images/XB-logo.png", width=100)
     st.sidebar.header("Melhore Seu Xadrez com o XB PRO")
     st.sidebar.write("""
-    Procurando elevar seu jogo de xadrez? Confira o [XB PRO](https://xadrezbrasil.com.br) - seu destino final para aprendizado e melhoria no xadrez. Seja você iniciante ou jogador avançado, o XB PRO oferece conteúdo personalizado para ajudá-lo a crescer.
+    Seja você iniciante ou jogador avançado, o XB PRO oferece conteúdo personalizado para ajudá-lo a crescer.
     """)
     # Usando st.markdown para criar um link que parece um botão
     estilo_do_botao = """
