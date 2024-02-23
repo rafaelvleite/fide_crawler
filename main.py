@@ -11,8 +11,30 @@ remove_duplicates_in_db()
 # Layout
 st.set_page_config(layout="wide")
 
+# Dummy function to mimic setting a language; replace with actual logic
+def set_language(language_code):
+    st.session_state.lang = language_code
+
+# Use columns to align flags on the right
+col1, col2, col3 = st.columns([1, 0.1, 0.1])  # Adjust spacing as needed
+
+# Use the empty columns for spacing and the last two columns for flags
+with col2:
+    if st.button('🇺🇸', key='en'):
+        set_language('en')
+        
+with col3:
+    if st.button('🇧🇷', key='pt'):
+        set_language('pt')
+
+# Display current language selection
+if 'lang' in st.session_state:
+    lang = st.session_state.lang
+else:
+    lang = 'pt'
+
 # Barra lateral para entradas de pesquisa
-localization_data, players, query, starting_date, end_date, selected_option = user_input_sidebar()
+localization_data, players, query, starting_date, end_date, selected_option = user_input_sidebar(lang)
 
 # Título do aplicativo Streamlit
 st.title(localization_data['app_title'])
