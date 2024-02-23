@@ -323,7 +323,7 @@ def displayPlayerGamesHistory(player_games_history, localization_data):
     filtered_games_history['date'] = pd.to_datetime(filtered_games_history['date']).dt.strftime('%Y-%m-%d')
     st.table(filtered_games_history[['date', 'tournament_name', 'player_name', 'player_rating', 'player_color', 'opponent_name', 'opponent_rating', 'result', 'chg', 'k', 'k_chg']])
 
-def displayAd(lang):
+def displayAd(lang='pt'):
     # Promotional Message Section
     if lang == "pt":
         st.sidebar.write("---")  # Draws a horizontal line for visual separation
