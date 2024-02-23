@@ -190,8 +190,8 @@ def displayPlayerLast3Tournaments(player_games_history, localization_data):
         localization_data['tournament_name'], 
         localization_data['date'], 
         localization_data['avg_opponent_rating'], 
-        localization_data['points'],  # Assuming 'points' key exists for "Points"
-        localization_data['games_played']  # Assuming 'games_played' key exists for "Games Played"
+        localization_data['points'],
+        localization_data['games_played']
     ]
 
     # Calculate overall performance in the tournament as a string (e.g., "6/7")
@@ -212,7 +212,7 @@ def displayPlayerLast3Tournaments(player_games_history, localization_data):
 
     # Display the table of the 3 most recent tournaments
     st.table(latest_3_tournaments[
-        [localization_data['date'], localization_data['tournament_name'], localization_data['avg_opponent_rating'], 'Resultado']
+        [localization_data['date'], localization_data['tournament_name'], localization_data['avg_opponent_rating'], localization_data['tournament_result']]
     ])
     
 def displayPlayerPerformance(player_games_history, localization_data):
