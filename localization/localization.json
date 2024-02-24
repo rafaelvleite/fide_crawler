@@ -45,8 +45,8 @@
         "tournament_result": "Result",
         "points": "Points",
         "games_played": "Games Played",
-        "": "",
-        "": "",
+        "performance_details": "Performance Details",
+        "avg_opponents_rating": "Average Opponents Rating",
         "": "",
         "": "",
         "": "",
@@ -99,8 +99,8 @@
         "tournament_result": "Resultado",
         "points": "Pontos",
         "games_played": "Partidas Jogadas",
-        "": "",
-        "": "",
+        "performance_details": "Métricas de Desempenho Detalhadas",
+        "avg_opponents_rating": "Ratings Médios dos Adversários",
         "": ""
     }
 }

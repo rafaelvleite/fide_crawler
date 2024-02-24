@@ -231,7 +231,7 @@ def displayPlayerPerformance(player_games_history, localization_data):
         st.pyplot(fig3)
         
 def displayPlayerPerformanceDetails(player_games_history, localization_data):
-    st.subheader("Métricas de Desempenho Detalhadas")
+    st.subheader(localization_data['performance_details'])
 
     if len(player_games_history) == 0:
         st.write(localization_data['insufficient_data'])
@@ -261,7 +261,7 @@ def displayPlayerPerformanceDetails(player_games_history, localization_data):
             wins_black_avg, draws_black_avg, losses_black_avg]
     
     # Gráfico de barras aprimorado para uma comparação detalhada de ratings médios dos oponentes
-    fig = create_enhanced_bar_chart(valores, categorias, 'Ratings Médios dos Adversários', localization_data)
+    fig = create_enhanced_bar_chart(valores, categorias, localization_data['avg_opponents_rating'], localization_data)
     st.pyplot(fig)
 
 def displayPlayerGamesHistory(player_games_history, localization_data):
