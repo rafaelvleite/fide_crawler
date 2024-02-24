@@ -12,21 +12,28 @@ remove_duplicates_in_db()
 st.set_page_config(layout="wide")
 
 def getLanguage():
-    lang = 'pt'
+    # Initialize the language in session state if not already done
+    if 'lang' not in st.session_state:
+        st.session_state['lang'] = 'pt'
+
     # Use columns to align flags on the right
     col1, col2, col3 = st.columns([1, 0.1, 0.1])  # Adjust spacing as needed
 
     # Use the empty columns for spacing and the last two columns for flags
     with col2:
         if st.button('🇺🇸', key='en'):
-            lang('en')
+            st.session_state['lang'] = 'en'
             
     with col3:
         if st.button('🇧🇷', key='pt'):
-            lang('pt')
-    return lang
+            st.session_state['lang'] = 'pt'
 
+    # Return the current language from session state
+    return st.session_state['lang']
+
+# Call the function to get the current language
 lang = getLanguage()
+
 
 # Barra lateral para entradas de pesquisa
 localization_data, players, query, starting_date, end_date, selected_option = user_input_sidebar(lang)
