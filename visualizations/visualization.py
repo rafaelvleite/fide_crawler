@@ -33,7 +33,7 @@ def create_enhanced_bar_chart(values, categories, title, localization_data):
     fig, ax = plt.subplots(figsize=(16, 6))
     colors = ['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink']
     ax.bar(categories, values, color=colors)
-    ax.set_ylabel('Rating Médio do Oponente')
+    ax.set_ylabel(localization_data['avg_opponent_rating'])
     ax.set_title(title)
     plt.xticks(rotation=45)
     for i, v in enumerate(values):
