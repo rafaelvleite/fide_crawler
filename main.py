@@ -35,18 +35,22 @@ else:
     st.text(" ")
     st.subheader(localization_data['no_games_found'])
 
-# Display credits based on the selected language
-if lang == 'pt':  # For Portuguese
-    st.markdown("""
-    **Créditos:**  
-    Rafael Leite, Canal Xadrez Brasil  
-    [youtube.com/@xadrezbrasil](https://www.youtube.com/@xadrezbrasil)  
-    [xadrezbrasil.com.br](https://xadrezbrasil.com.br)
-    """, unsafe_allow_html=True)
-else:  # For English
-    st.markdown("""
-    **Credits:**  
-    Rafael Leite, Master Move Channel  
-    [youtube.com/@mastermovechess](https://www.youtube.com/@mastermovechess)  
-    [mastermoveapp.com](https://mastermoveapp.com)
-    """, unsafe_allow_html=True)
+def displayCredits(lang):
+    if lang == 'pt':
+        credits = """
+        **Créditos:**  
+        - 🧑 Rafael Leite, Canal Xadrez Brasil  
+        - ▶️ [youtube.com/@xadrezbrasil](https://youtube.com/@xadrezbrasil)  
+        - 🌐 [xadrezbrasil.com.br](https://xadrezbrasil.com.br)  
+        """
+    else: # Assume English for any other language setting
+        credits = """
+        **Credits:**  
+        - 🧑 Rafael Leite, Master Move Channel  
+        - ▶️ [youtube.com/@mastermovechess](https://youtube.com/@mastermovechess)  
+        - 🌐 [mastermoveapp.com](https://mastermoveapp.com)  
+        """
+    st.markdown(credits, unsafe_allow_html=True)
+
+# Assuming lang is set from getLanguage() function
+displayCredits(lang)
