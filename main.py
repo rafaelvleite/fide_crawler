@@ -27,6 +27,7 @@ player_data, player_games_history = displayPlayerProfile(players, selected_optio
 if players and 'selected_option' in locals() and selected_option != localization_data['player_select']:
     displayPlayerELOEvolution(player_games_history, localization_data)
     displayPlayerLast3Tournaments(player_games_history, localization_data)
+    displayPlayerPerformance(player_games_history, localization_data)
     displayPlayerPerformanceDetails(player_games_history, localization_data)
     displayPlayerGamesHistory(player_games_history, localization_data)
     
