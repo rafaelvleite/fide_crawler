@@ -373,22 +373,21 @@ def displayDownloadDbButton():
         st.error("Arquivo do banco de dados não encontrado!")
 
 def getLanguage():
+    # Initialize the language in session state if not already done
     if 'lang' not in st.session_state:
         st.session_state['lang'] = 'pt'
 
-    col1, col2, col3 = st.columns([1, 0.1, 0.1])
+    # Use columns to align flags on the right
+    col1, col2, col3 = st.columns([1, 0.1, 0.1])  # Adjust spacing as needed
 
+    # Use the empty columns for spacing and the last two columns for flags
     with col2:
         if st.button('🇺🇸', key='en'):
             st.session_state['lang'] = 'en'
-
+            
     with col3:
         if st.button('🇧🇷', key='pt'):
             st.session_state['lang'] = 'pt'
 
-    # Display the currently selected language
-    st.write(f"Current Language: {'English' if st.session_state['lang'] == 'en' else 'Portuguese'}")
-
+    # Return the current language from session state
     return st.session_state['lang']
-
-lang = getLanguage()
