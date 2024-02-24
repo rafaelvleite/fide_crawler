@@ -2,7 +2,7 @@ import streamlit as st
 from database.database_management import initialize_database, remove_duplicates_in_db
 from ui.streamlit_ui import user_input_sidebar, displayPlayerProfile, displayPlayerELOEvolution,\
         displayPlayerLast3Tournaments, displayPlayerPerformanceDetails, displayPlayerGamesHistory, \
-        getLanguage, displayDownloadDbButton
+        displayPlayerPerformance, getLanguage, displayDownloadDbButton
 
 # Inicializar o banco de dados e as tabelas
 initialize_database()
