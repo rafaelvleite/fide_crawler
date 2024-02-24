@@ -197,7 +197,7 @@ def displayPlayerPerformance(player_games_history, localization_data):
     if len(player_games_history) == 0:
         return      
     
-    st.header('Estatísticas de Jogo')
+    st.header(localization_data['game_statistics'])
     # Calcular estatísticas para gráficos de pizza
     win_count = len(player_games_history[player_games_history['result'] == 1.0])
     draw_count = len(player_games_history[player_games_history['result'] == 0.5])
@@ -216,18 +216,21 @@ def displayPlayerPerformance(player_games_history, localization_data):
     # Gráficos de pizza
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.subheader("Desempenho Geral")
-        fig1 = create_pie_chart([win_count, draw_count, loss_count], ['Vitórias', 'Empates', 'Derrotas'], 'Geral')
+        st.subheader(localization_data["overall_performance"])
+        fig1 = create_pie_chart([win_count, draw_count, loss_count], [localization_data["wins"], localization_data["draws"], localization_data["losses"]],\
+            localization_data["overall"])
         st.pyplot(fig1)
 
     with col2:
-        st.subheader("Desempenho como Brancas")
-        fig2 = create_pie_chart([win_white, draw_white, loss_white], ['Vitórias', 'Empates', 'Derrotas'], 'Como Brancas')
+        st.subheader(localization_data["performance_as_white"])
+        fig2 = create_pie_chart([win_white, draw_white, loss_white], [localization_data["wins"], localization_data["draws"], localization_data["losses"]],\
+            localization_data["as_white"])
         st.pyplot(fig2)
 
     with col3:
-        st.subheader("Desempenho como Pretas")
-        fig3 = create_pie_chart([win_black, draw_black, loss_black], ['Vitórias', 'Empates', 'Derrotas'], 'Como Pretas')
+        st.subheader(localization_data["performance_as_black"])
+        fig3 = create_pie_chart([win_black, draw_black, loss_black], [localization_data["wins"], localization_data["draws"], localization_data["losses"]],\
+            localization_data["as_black"])
         st.pyplot(fig3)
         
 def displayPlayerPerformanceDetails(player_games_history, localization_data):
@@ -285,7 +288,7 @@ def displayPlayerGamesHistory(player_games_history, localization_data):
     # Opções de filtro
     filter_options = {
         'Game Result': st.multiselect(localization_data['game_result_filter'], \
-            [localization_data['win'], localization_data['draw'], localization_data['lose']]),
+            [localization_data['win'], localization_data['draw'], localization_data['loss']]),
         'Opponent Name Contains': st.text_input(localization_data['opponent_substring'])
     }
 
@@ -296,7 +299,7 @@ def displayPlayerGamesHistory(player_games_history, localization_data):
             filtered_results.append(1.0)
         if localization_data['draw'] in filter_options['Game Result']:
             filtered_results.append(0.5)
-        if localization_data['lose'] in filter_options['Game Result']:
+        if localization_data['loss'] in filter_options['Game Result']:
             filtered_results.append(0.0)
         filtered_games_history = filtered_games_history[filtered_games_history['result'].isin(filtered_results)]
 
@@ -314,7 +317,7 @@ def displayPlayerGamesHistory(player_games_history, localization_data):
         scoreCol1, scoreCol2, scoreCol3 = st.columns(3)
         metric_card(localization_data['win_count'], f"{num_vitorias}", scoreCol1)
         metric_card(localization_data['draw_count'], f"{num_empates}", scoreCol2)
-        metric_card(localization_data['lose_count'], f"{num_derrotas}", scoreCol3)
+        metric_card(localization_data['loss_count'], f"{num_derrotas}", scoreCol3)
         
     # Agora aplicar formatação e exibir o DataFrame filtrado
     filtered_games_history['date'] = pd.to_datetime(filtered_games_history['date']).dt.strftime('%Y-%m-%d')
