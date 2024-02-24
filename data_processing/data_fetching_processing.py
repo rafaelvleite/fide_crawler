@@ -120,7 +120,7 @@ def fetch_player_data(fide_id):
     fetched_player_data = scrapePlayerData(fide_id)
     return fetched_player_data
 
-def scrapePlayerGamesHistory(fide_id, playerName, startingPeriod, endPeriod):
+def scrapePlayerGamesHistory(fide_id, playerName, startingPeriod, endPeriod, progress_bar=None):
     startingPeriodDate = datetime.strptime(startingPeriod, "%Y-%m-%d")
     endPeriodDate = datetime.strptime(endPeriod, "%Y-%m-%d")
     walkingDate = startingPeriodDate
@@ -138,7 +138,11 @@ def scrapePlayerGamesHistory(fide_id, playerName, startingPeriod, endPeriod):
     for stringDate in fullDateRange:
         allLinks.append(f"https://ratings.fide.com/a_indv_calculations.php?id_number={fide_id}&rating_period={stringDate}&t=0")
 
-    for link in allLinks:
+    for index, link in enumerate(allLinks):
+        # Update progress bar if it's passed as an argument
+        if progress_bar is not None:
+            progress_bar.progress((index + 1) / len(allLinks))
+            
         html = requests.get(link).text
         parsed_html = BeautifulSoup(html, 'html.parser')
         fullTable = parsed_html.find('table', attrs={'class': 'calc_table'})

@@ -96,9 +96,12 @@ def displayPlayerProfile(players, selected_option, starting_date, end_date, loca
         selected_fide_id = selected_player_info['id']
         
         with st.spinner(f'{localization_data["fetching_player"]}{selected_player_info["name"]}...'):
+            progress_bar = st.progress(0)  # Initialize the progress bar
             player_data = fetch_player_data(selected_fide_id)
-            player_games_history = fetch_game_history(selected_fide_id, player_data['name'], starting_date.strftime("%Y-%m-%d"), end_date.strftime("%Y-%m-%d"))
+            player_games_history = fetch_game_history(selected_fide_id, player_data['name'], starting_date.strftime("%Y-%m-%d"), end_date.strftime("%Y-%m-%d"), progress_bar)
             player_games_history = process_game_history(player_games_history)
+            progress_bar.empty()
+
 
         st.header(localization_data["player_profile"])
         
