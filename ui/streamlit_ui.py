@@ -68,7 +68,7 @@ def user_input_sidebar(lang):
         localization_data = load_localization(lang)
         st.title(localization_data['player_search'])
         query = st.text_input(localization_data['surename_input'])
-        starting_date = st.date_input(localization_data['start_date'], value=datetime.now() - relativedelta.relativedelta(years=1))
+        starting_date = st.date_input(localization_data['start_date'], value=datetime.now() - relativedelta.relativedelta(years=3))
         end_date = st.date_input(localization_data['end_date'], value=datetime.now())
         # Ajustar datas para o primeiro dia do mês
         starting_date = starting_date   .replace(day=1)
