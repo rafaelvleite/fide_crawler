@@ -21,11 +21,11 @@ def plot_rating_time_series(games_df, localization_data):
         st.write(localization_data['no_rating_data_available'])
 
 
-def create_pie_chart(sizes, labels, title, localization_data):
+def create_pie_chart(sizes, labels, title):
     fig, ax = plt.subplots()
     ax.pie(sizes, labels=[label for label in labels], autopct='%1.1f%%', startangle=90)
     ax.axis('equal')
-    plt.title(localization_data[title])
+    plt.title(title)
     return fig
 
 # Função Aprimorada para Criar um Gráfico de Barras

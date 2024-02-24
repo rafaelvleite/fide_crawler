@@ -217,17 +217,17 @@ def displayPlayerPerformance(player_games_history, localization_data):
     col1, col2, col3 = st.columns(3)
     with col1:
         st.subheader("Desempenho Geral")
-        fig1 = create_pie_chart([win_count, draw_count, loss_count], ['Vitórias', 'Empates', 'Derrotas'], 'Geral', localization_data)
+        fig1 = create_pie_chart([win_count, draw_count, loss_count], ['Vitórias', 'Empates', 'Derrotas'], 'Geral')
         st.pyplot(fig1)
 
     with col2:
         st.subheader("Desempenho como Brancas")
-        fig2 = create_pie_chart([win_white, draw_white, loss_white], ['Vitórias', 'Empates', 'Derrotas'], 'Como Brancas', localization_data)
+        fig2 = create_pie_chart([win_white, draw_white, loss_white], ['Vitórias', 'Empates', 'Derrotas'], 'Como Brancas')
         st.pyplot(fig2)
 
     with col3:
         st.subheader("Desempenho como Pretas")
-        fig3 = create_pie_chart([win_black, draw_black, loss_black], ['Vitórias', 'Empates', 'Derrotas'], 'Como Pretas', localization_data)
+        fig3 = create_pie_chart([win_black, draw_black, loss_black], ['Vitórias', 'Empates', 'Derrotas'], 'Como Pretas')
         st.pyplot(fig3)
         
 def displayPlayerPerformanceDetails(player_games_history, localization_data):
