@@ -379,12 +379,15 @@ def getLanguage():
     col1, col2, col3 = st.columns([1, 0.1, 0.1])
 
     with col2:
-        if st.button('🇺🇸' + (' (Selected)' if st.session_state['lang'] == 'en' else ''), key='en'):
+        if st.button('🇺🇸', key='en'):
             st.session_state['lang'] = 'en'
 
     with col3:
-        if st.button('🇧🇷' + (' (Selected)' if st.session_state['lang'] == 'pt' else ''), key='pt'):
+        if st.button('🇧🇷', key='pt'):
             st.session_state['lang'] = 'pt'
+
+    # Display the currently selected language
+    st.write(f"Current Language: {'English' if st.session_state['lang'] == 'en' else 'Portuguese'}")
 
     return st.session_state['lang']
 
