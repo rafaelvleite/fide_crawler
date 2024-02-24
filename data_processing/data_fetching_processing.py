@@ -199,7 +199,6 @@ def scrapePlayerGamesHistory(fide_id, playerName, startingPeriod, endPeriod, pro
 
     return gameDf
 
-@st.cache(allow_output_mutation=True)
 def fetch_game_history(fide_id, playerName, startingPeriod, endPeriod):
     with sqlite3.connect('./database/fide_data.db') as conn:
         cursor = conn.cursor()
