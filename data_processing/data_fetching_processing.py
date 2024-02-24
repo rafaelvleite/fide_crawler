@@ -199,7 +199,7 @@ def scrapePlayerGamesHistory(fide_id, playerName, startingPeriod, endPeriod, pro
 
     return gameDf
 
-def fetch_game_history(fide_id, playerName, startingPeriod, endPeriod):
+def fetch_game_history(fide_id, playerName, startingPeriod, endPeriod, progress_bar=None):
     with sqlite3.connect('./database/fide_data.db') as conn:
         cursor = conn.cursor()
 
@@ -213,7 +213,7 @@ def fetch_game_history(fide_id, playerName, startingPeriod, endPeriod):
 
         if min_max_date[0] is None or min_max_date[1] is None:
             # Se nenhum dado existir, buscar pelo período solicitado inteiro
-            fetched_games_df = scrapePlayerGamesHistory(fide_id, playerName, startingPeriod.strftime('%Y-%m-%d'), endPeriod.strftime('%Y-%m-%d'))
+            fetched_games_df = scrapePlayerGamesHistory(fide_id, playerName, startingPeriod.strftime('%Y-%m-%d'), endPeriod.strftime('%Y-%m-%d'), progress_bar)
             insertGameData(cursor, fetched_games_df, fide_id)
         else:
             db_start_date, db_end_date = [datetime.strptime(date, "%Y-%m-%d") for date in min_max_date]
