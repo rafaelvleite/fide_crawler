@@ -115,7 +115,6 @@ def scrapePlayerData(fide_id):
 
     return player_data
 
-@st.cache(allow_output_mutation=True)
 def fetch_player_data(fide_id):
     fetched_player_data = scrapePlayerData(fide_id)
     return fetched_player_data
