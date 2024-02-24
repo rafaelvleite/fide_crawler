@@ -279,6 +279,8 @@ def displayPlayerGamesHistory(player_games_history, localization_data):
     # Aplicar filtros
     filtered_games_history = player_games_history.copy()  # Criar uma cópia para evitar modificar o DataFrame original
     filtered_games_history.sort_values('date', ascending=False, inplace=True)
+    filtered_games_history.reset_index(drop=True, inplace=True)
+    filtered_games_history.index += 1
 
     # Opções de filtro
     filter_options = {
