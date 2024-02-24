@@ -117,25 +117,8 @@ def scrapePlayerData(fide_id):
 
 @st.cache(allow_output_mutation=True)
 def fetch_player_data(fide_id):
-    with sqlite3.connect('./database/fide_data.db') as conn:
-        cursor = conn.cursor()
-
-        # Verificar se os dados do jogador já existem
-        cursor.execute("SELECT * FROM player_data WHERE fide_id = ?", (fide_id,))
-        player_data = cursor.fetchone()
-
-        if player_data:
-            keys = ['fide_id', 'name', 'federation', 'b_year', 'sex', 'fide_title', 
-                    'std_rating', 'rapid_rating', 'blitz_rating', 'profile_photo', 'world_rank' ]
-            return dict(zip(keys, player_data))
-        else:
-            # Sua lógica de web scraping aqui para buscar dados do jogador
-            fetched_player_data = scrapePlayerData(fide_id)
-            # Após buscar, inserir os dados no banco de dados
-            cursor.execute("INSERT INTO player_data (fide_id, name, federation, b_year, sex, fide_title, std_rating, rapid_rating, blitz_rating, profile_photo, world_rank) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
-                           (fetched_player_data['fide_id'], fetched_player_data['name'], fetched_player_data['federation'], fetched_player_data['b_year'], fetched_player_data['sex'], fetched_player_data['fide_title'], fetched_player_data['std_rating'], fetched_player_data['rapid_rating'], fetched_player_data['blitz_rating'], fetched_player_data['profile_photo'], fetched_player_data['world_rank']))
-            conn.commit()
-            return fetched_player_data
+    fetched_player_data = scrapePlayerData(fide_id)
+    return fetched_player_data
 
 def scrapePlayerGamesHistory(fide_id, playerName, startingPeriod, endPeriod):
     startingPeriodDate = datetime.strptime(startingPeriod, "%Y-%m-%d")
