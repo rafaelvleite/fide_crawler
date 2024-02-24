@@ -304,7 +304,7 @@ def displayPlayerGamesHistory(player_games_history, localization_data):
         oponentes_no_filtro = list(filtered_games_history['opponent_name'].unique())
         oponentes_no_filtro.sort()
         oponentes_no_filtro = '/ '.join(oponentes_no_filtro)
-        st.info(f'{localization_data['found_against']}{oponentes_no_filtro}')
+        st.info(f"{localization_data['found_against']}{oponentes_no_filtro}")
         num_vitorias = (filtered_games_history['result'] == 1.0).sum()
         num_empates = (filtered_games_history['result'] == 0.5).sum()
         num_derrotas = (filtered_games_history['result'] == 0.0).sum()
