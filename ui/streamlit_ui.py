@@ -372,3 +372,66 @@ def displayDownloadDbButton():
     else:
         st.error("Arquivo do banco de dados não encontrado!")
 
+def getLanguage():
+    # Initialize the language in session state if not already done
+    if 'lang' not in st.session_state:
+        st.session_state['lang'] = 'pt'
+
+    # Use columns to align flags on the right
+    col1, col2, col3 = st.columns([1, 0.1, 0.1])  # Adjust spacing as needed
+
+    # Custom button styles
+    button_style = """
+    <style>
+        .button {
+            display: inline-block;
+            padding: 0.5em 1.5em;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            outline: none;
+            color: #fff;
+            background-color: #4CAF50;
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 9px #999;
+        }
+        .button:hover {background-color: #3e8e41}
+        .button:active {
+            background-color: #3e8e41;
+            box-shadow: 0 5px #666;
+            transform: translateY(4px);
+        }
+        .button-selected {
+            background-color: #555;
+            color: #fff;
+        }
+    </style>
+    """
+
+    # Use the empty columns for spacing and the last two columns for flags
+    with col2:
+        if st.button('🇺🇸', key='en'):
+            st.session_state['lang'] = 'en'
+
+    with col3:
+        if st.button('🇧🇷', key='pt'):
+            st.session_state['lang'] = 'pt'
+
+    # Show selected language with a visual cue
+    st.markdown(button_style, unsafe_allow_html=True)
+    col2, col3 = st.columns([0.1, 0.1])
+    with col2:
+        if st.session_state['lang'] == 'en':
+            st.markdown(f"<button class='button button-selected'>🇺🇸</button>", unsafe_allow_html=True)
+        else:
+            st.markdown(f"<button class='button'>🇺🇸</button>", unsafe_allow_html=True)
+    with col3:
+        if st.session_state['lang'] == 'pt':
+            st.markdown(f"<button class='button button-selected'>🇧🇷</button>", unsafe_allow_html=True)
+        else:
+            st.markdown(f"<button class='button'>🇧🇷</button>", unsafe_allow_html=True)
+
+    # Return the current language from session state
+    return st.session_state['lang']
