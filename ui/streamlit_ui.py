@@ -267,7 +267,7 @@ def displayPlayerPerformanceDetails(player_games_history, localization_data):
 def displayPlayerGamesHistory(player_games_history, localization_data):
     # Seção de Histórico de Jogos
     st.write(" ")
-    st.header('Histórico de Jogos')
+    st.header(localization_data['games_history'])
     
     if len(player_games_history) == 0:
         st.write(localization_data['insufficient_data'])
@@ -281,36 +281,37 @@ def displayPlayerGamesHistory(player_games_history, localization_data):
 
     # Opções de filtro
     filter_options = {
-        'Resultado do Jogo': st.multiselect('Selecione o resultado do jogo:', ['Vitória', 'Empate', 'Derrota']),
-        'Nome do Oponente Contém': st.text_input('Digite um substring do nome do oponente:')
+        'Game Result': st.multiselect(localization_data['game_result_filter'], \
+            [localization_data['win'], localization_data['draw'], localization_data['lose']]),
+        'Opponent Name Contains': st.text_input(localization_data['opponent_substring'])
     }
 
     # Filtrar por resultado do jogo
-    if 'Resultado do Jogo' in filter_options and filter_options['Resultado do Jogo']:
+    if 'Game Result' in filter_options and filter_options['Game Result']:
         filtered_results = []
-        if 'Vitória' in filter_options['Resultado do Jogo']:
+        if localization_data['win'] in filter_options['Game Result']:
             filtered_results.append(1.0)
-        if 'Empate' in filter_options['Resultado do Jogo']:
+        if localization_data['draw'] in filter_options['Game Result']:
             filtered_results.append(0.5)
-        if 'Derrota' in filter_options['Resultado do Jogo']:
+        if localization_data['lose'] in filter_options['Game Result']:
             filtered_results.append(0.0)
         filtered_games_history = filtered_games_history[filtered_games_history['result'].isin(filtered_results)]
 
     # Filtrar por substring do nome do oponente
-    if 'Nome do Oponente Contém' in filter_options and filter_options['Nome do Oponente Contém']:
-        substring = filter_options['Nome do Oponente Contém'].strip().lower()
+    if 'Opponent Name Contains' in filter_options and filter_options['Opponent Name Contains']:
+        substring = filter_options['Opponent Name Contains'].strip().lower()
         filtered_games_history = filtered_games_history[filtered_games_history['opponent_name'].str.lower().str.contains(substring)]
         oponentes_no_filtro = list(filtered_games_history['opponent_name'].unique())
         oponentes_no_filtro.sort()
         oponentes_no_filtro = '/ '.join(oponentes_no_filtro)
-        st.info(f'Jogos encontrados contra {oponentes_no_filtro}')
+        st.info(f'{localization_data['found_against']}{oponentes_no_filtro}')
         num_vitorias = (filtered_games_history['result'] == 1.0).sum()
         num_empates = (filtered_games_history['result'] == 0.5).sum()
         num_derrotas = (filtered_games_history['result'] == 0.0).sum()
         scoreCol1, scoreCol2, scoreCol3 = st.columns(3)
-        metric_card('Vitórias (Contagem)', f"{num_vitorias}", scoreCol1)
-        metric_card('Empates (Contagem)', f"{num_empates}", scoreCol2)
-        metric_card('Derrotas (Contagem)', f"{num_derrotas}", scoreCol3)
+        metric_card(localization_data['win_count'], f"{num_vitorias}", scoreCol1)
+        metric_card(localization_data['draw_count'], f"{num_empates}", scoreCol2)
+        metric_card(localization_data['lose_count'], f"{num_derrotas}", scoreCol3)
         
     # Agora aplicar formatação e exibir o DataFrame filtrado
     filtered_games_history['date'] = pd.to_datetime(filtered_games_history['date']).dt.strftime('%Y-%m-%d')
