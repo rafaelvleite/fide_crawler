@@ -380,24 +380,14 @@ def getLanguage():
     # Use columns to align flags on the right
     col1, col2, col3 = st.columns([1, 0.1, 0.1])  # Adjust spacing as needed
 
-    # Define a simple style for the selected button
-    selected_style = "background-color: #008cba; color: white;"
-    default_style = ""  # No extra style for non-selected
-
-    # Determine the styles for each button based on the current language
-    en_style = selected_style if st.session_state['lang'] == 'en' else default_style
-    pt_style = selected_style if st.session_state['lang'] == 'pt' else default_style
-
     # Use the empty columns for spacing and the last two columns for flags
     with col2:
-        # Apply the style dynamically based on the current language
-        if st.button('🇺🇸', key='en', style=en_style):
-            st.session_state['lang'] = 'en'
+        if st.button('🇧🇷', key='pt'):
+            st.session_state['lang'] = 'pt'
             
     with col3:
-        # Apply the style dynamically based on the current language
-        if st.button('🇧🇷', key='pt', style=pt_style):
-            st.session_state['lang'] = 'pt'
+        if st.button('🇺🇸', key='en'):
+            st.session_state['lang'] = 'en'
 
     # Return the current language from session state
     return st.session_state['lang']
