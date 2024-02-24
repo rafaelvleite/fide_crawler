@@ -34,3 +34,19 @@ else:
     st.text(" ")
     st.text(" ")
     st.subheader(localization_data['no_games_found'])
+
+# Display credits based on the selected language
+if lang == 'pt':  # For Portuguese
+    st.markdown("""
+    **Créditos:**  
+    Rafael Leite, Canal Xadrez Brasil  
+    [youtube.com/@xadrezbrasil](https://www.youtube.com/@xadrezbrasil)  
+    [xadrezbrasil.com.br](https://xadrezbrasil.com.br)
+    """, unsafe_allow_html=True)
+else:  # For English
+    st.markdown("""
+    **Credits:**  
+    Rafael Leite, Master Move Channel  
+    [youtube.com/@mastermovechess](https://www.youtube.com/@mastermovechess)  
+    [mastermoveapp.com](https://mastermoveapp.com)
+    """, unsafe_allow_html=True)
