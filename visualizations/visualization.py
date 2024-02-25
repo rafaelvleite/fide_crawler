@@ -45,6 +45,7 @@ def create_enhanced_bar_chart(values, categories, title, localization_data):
               '#68c973',  # Saturated green
               '#fcf75e',  # Saturated yellow
               '#ff5f5f']  # Saturated red
+    ax.bar(categories, values, color=colors)
     ax.set_ylabel(localization_data['avg_opponent_rating'])
     ax.set_title(title)
     plt.xticks(rotation=45)
