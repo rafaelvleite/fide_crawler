@@ -22,9 +22,17 @@ def plot_rating_time_series(games_df, localization_data):
 
 
 def create_pie_chart(sizes, labels, title):
+    # Define the colors for the pie chart
+    colors = ['green', 'yellow', 'red']
+    
+    # Create a pie chart
     fig, ax = plt.subplots()
-    ax.pie(sizes, labels=[label for label in labels], autopct='%1.1f%%', startangle=90)
-    ax.axis('equal')
+    ax.pie(sizes, labels=[label for label in labels], autopct='%1.1f%%', startangle=90, colors=colors)
+    ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+    
+    # Set the title of the chart
+    plt.title(title)
+    
     return fig
 
 # Função Aprimorada para Criar um Gráfico de Barras
