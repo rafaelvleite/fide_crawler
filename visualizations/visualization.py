@@ -23,7 +23,7 @@ def plot_rating_time_series(games_df, localization_data):
 
 def create_pie_chart(sizes, labels, title):
     # Define the colors for the pie chart
-    colors = ['green', 'yellow', 'red']
+    colors = ['#77dd77', '#fdfd96', '#ff6961']  # Pastel green, pastel yellow, pastel red
     
     # Create a pie chart
     fig, ax = plt.subplots()
