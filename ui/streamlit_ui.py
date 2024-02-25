@@ -206,6 +206,7 @@ def displayPlayerLast3Tournaments(player_games_history, localization_data):
             [localization_data['date'], localization_data['tournament_name'], localization_data['avg_opponent_rating'], localization_data['tournament_result']]
         ].to_html(classes='fontIncrease'), unsafe_allow_html=True
     )
+    st.write(" ")
 
 def displayPlayerPerformance(player_games_history, localization_data):
     if len(player_games_history) == 0:
