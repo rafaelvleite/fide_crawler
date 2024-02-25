@@ -190,12 +190,23 @@ def displayPlayerLast3Tournaments(player_games_history, localization_data):
     latest_3_tournaments[localization_data['avg_opponent_rating']] = latest_3_tournaments[localization_data['avg_opponent_rating']].apply(lambda x: int(x))
     latest_3_tournaments.reset_index(inplace=True, drop=True)
     latest_3_tournaments.index += 1
-
-    # Display the table of the 3 most recent tournaments
-    st.table(latest_3_tournaments[
-        [localization_data['date'], localization_data['tournament_name'], localization_data['avg_opponent_rating'], localization_data['tournament_result']]
-    ])
     
+    # Increase font size for table
+    st.markdown("""
+    <style>
+    .fontIncrease tr td {
+        font-size: 20px !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    # Display the table with increased font size
+    st.markdown(
+        latest_3_tournaments[
+            [localization_data['date'], localization_data['tournament_name'], localization_data['avg_opponent_rating'], localization_data['tournament_result']]
+        ].to_html(classes='fontIncrease'), unsafe_allow_html=True
+    )
+
 def displayPlayerPerformance(player_games_history, localization_data):
     if len(player_games_history) == 0:
         return      
