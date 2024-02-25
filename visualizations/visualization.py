@@ -38,8 +38,13 @@ def create_pie_chart(sizes, labels, title):
 # Função Aprimorada para Criar um Gráfico de Barras
 def create_enhanced_bar_chart(values, categories, title, localization_data):
     fig, ax = plt.subplots(figsize=(16, 6))
-    colors = ['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink']
-    ax.bar(categories, values, color=colors)
+    colors = ['#add8e6',  # Pastel blue
+              '#77dd77',  # Pastel green
+              '#fdfd96',  # Pastel yellow
+              '#ff6961',  # Pastel red
+              '#68c973',  # Saturated green
+              '#fcf75e',  # Saturated yellow
+              '#ff5f5f']  # Saturated red
     ax.set_ylabel(localization_data['avg_opponent_rating'])
     ax.set_title(title)
     plt.xticks(rotation=45)
