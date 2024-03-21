@@ -162,39 +162,37 @@ def scrapePlayerGamesHistory(fide_id, playerName, startingPeriod, endPeriod, pro
             colorIndex = 0
             
             for limiter in limiters:
-                tournament_name = tableDf.iloc[limiter - 3, 0]
-                tournament_date = tableDf.iloc[limiter - 3, 7]
-                player_rating = tableDf.iloc[limiter - 1, 1]
-                if limiters.index(limiter) < len(limiters) - 1:
-                    localDf = tableDf.iloc[limiter + 1:limiters[limiters.index(limiter) + 1] - 3, :]
-                else:
-                    localDf = tableDf.iloc[limiter + 1:, :]
-                
-                # Iterar sobre cada jogo no torneio
-                for _, row in localDf.iterrows():
-                    if colorIndex < len(retrievedColors):
-                        player_color = retrievedColors[colorIndex]
+                try:
+                    tournament_name = tableDf.iloc[limiter - 3, 0]
+                    tournament_date = tableDf.iloc[limiter - 3, 7]
+                    player_rating = tableDf.iloc[limiter - 1, 1]
+                    if limiters.index(limiter) < len(limiters) - 1:
+                        localDf = tableDf.iloc[limiter + 1:limiters[limiters.index(limiter) + 1] - 3, :]
                     else:
-                        player_color = 'white'  
-
-                    game_details = {
-                        'date': tournament_date,
-                        'tournament_name': tournament_name,
-                        'country': row['Unnamed: 4'],
-                        'player_name': playerName,
-                        'player_rating': player_rating,
-                        'player_color': player_color,
-                        'opponent_name': row['Unnamed: 0'],  
-                        'opponent_rating': row['Unnamed: 3'],  
-                        'result': row['Unnamed: 5'], 
-                        'chg': row['Unnamed: 7'], 
-                        'k': row['Unnamed: 8'], 
-                        'k_chg': row['Unnamed: 9'], 
-                    }
-                    gameDf = pd.concat([gameDf, pd.DataFrame([game_details])], ignore_index=True)
-                    gameDf.dropna(inplace=True)
-                    gameDf.reset_index(inplace=True, drop=True)
-                    colorIndex += 1
+                        localDf = tableDf.iloc[limiter + 1:, :]
+                    
+                    # Iterar sobre cada jogo no torneio
+                    for _, row in localDf.iterrows():
+                        game_details = {
+                            'date': tournament_date,
+                            'tournament_name': tournament_name,
+                            'country': row['Unnamed: 4'],
+                            'player_name': playerName,
+                            'player_rating': player_rating,
+                            'player_color': retrievedColors[colorIndex],
+                            'opponent_name': row['Unnamed: 0'],  
+                            'opponent_rating': row['Unnamed: 3'],  
+                            'result': row['Unnamed: 5'], 
+                            'chg': row['Unnamed: 7'], 
+                            'k': row['Unnamed: 8'], 
+                            'k_chg': row['Unnamed: 9'], 
+                        }
+                        gameDf = pd.concat([gameDf, pd.DataFrame([game_details])], ignore_index=True)
+                        gameDf.dropna(inplace=True)
+                        gameDf.reset_index(inplace=True, drop=True)
+                        colorIndex += 1
+                except:
+                    pass
     
     if len(gameDf) > 0:
         gameDf['opponent_rating'] = gameDf['opponent_rating'].astype(str).str.replace(r'\D', '', regex=True)
