@@ -141,55 +141,59 @@ def scrapePlayerGamesHistory(fide_id, playerName, startingPeriod, endPeriod, pro
         # Update progress bar if it's passed as an argument
         if progress_bar is not None:
             progress_bar.progress((index + 1) / len(allLinks))
+        
+        try:
             
-        html = requests.get(link).text
-        parsed_html = BeautifulSoup(html, 'html.parser')
-        fullTable = parsed_html.find('table', attrs={'class': 'calc_table'})
-        if fullTable is not None:
-            tableDf = pd.read_html(fullTable.prettify())[0]
-            tableDf.drop(tableDf.index[tableDf['Unnamed: 0'] == "*  Rating difference of more than 400."], inplace=True)
-            tableDf.reset_index(inplace=True, drop=True)
-            limiters = tableDf.isnull().all(1)
-            limiters = limiters[limiters == True].index.values.tolist()
-            colors = fullTable.find_all('img')
-            retrievedColors = []
-            
-            for img_tag in colors:
-                src = img_tag.get('src')
-                color = 'white' if 'clr_wh' in src else 'black'
-                retrievedColors.append(color)
-            
-            colorIndex = 0
-            
-            for limiter in limiters:
-                tournament_name = tableDf.iloc[limiter - 3, 0]
-                tournament_date = tableDf.iloc[limiter - 3, 7]
-                player_rating = tableDf.iloc[limiter - 1, 1]
-                if limiters.index(limiter) < len(limiters) - 1:
-                    localDf = tableDf.iloc[limiter + 1:limiters[limiters.index(limiter) + 1] - 3, :]
-                else:
-                    localDf = tableDf.iloc[limiter + 1:, :]
+            html = requests.get(link).text
+            parsed_html = BeautifulSoup(html, 'html.parser')
+            fullTable = parsed_html.find('table', attrs={'class': 'calc_table'})
+            if fullTable is not None:
+                tableDf = pd.read_html(fullTable.prettify())[0]
+                tableDf.drop(tableDf.index[tableDf['Unnamed: 0'] == "*  Rating difference of more than 400."], inplace=True)
+                tableDf.reset_index(inplace=True, drop=True)
+                limiters = tableDf.isnull().all(1)
+                limiters = limiters[limiters == True].index.values.tolist()
+                colors = fullTable.find_all('img')
+                retrievedColors = []
                 
-                # Iterar sobre cada jogo no torneio
-                for _, row in localDf.iterrows():
-                    game_details = {
-                        'date': tournament_date,
-                        'tournament_name': tournament_name,
-                        'country': row['Unnamed: 4'],
-                        'player_name': playerName,
-                        'player_rating': player_rating,
-                        'player_color': retrievedColors[colorIndex],
-                        'opponent_name': row['Unnamed: 0'],  
-                        'opponent_rating': row['Unnamed: 3'],  
-                        'result': row['Unnamed: 5'], 
-                        'chg': row['Unnamed: 7'], 
-                        'k': row['Unnamed: 8'], 
-                        'k_chg': row['Unnamed: 9'], 
-                    }
-                    gameDf = pd.concat([gameDf, pd.DataFrame([game_details])], ignore_index=True)
-                    gameDf.dropna(inplace=True)
-                    gameDf.reset_index(inplace=True, drop=True)
-                    colorIndex += 1
+                for img_tag in colors:
+                    src = img_tag.get('src')
+                    color = 'white' if 'clr_wh' in src else 'black'
+                    retrievedColors.append(color)
+                
+                colorIndex = 0
+                
+                for limiter in limiters:
+                    tournament_name = tableDf.iloc[limiter - 3, 0]
+                    tournament_date = tableDf.iloc[limiter - 3, 7]
+                    player_rating = tableDf.iloc[limiter - 1, 1]
+                    if limiters.index(limiter) < len(limiters) - 1:
+                        localDf = tableDf.iloc[limiter + 1:limiters[limiters.index(limiter) + 1] - 3, :]
+                    else:
+                        localDf = tableDf.iloc[limiter + 1:, :]
+                    
+                    # Iterar sobre cada jogo no torneio
+                    for _, row in localDf.iterrows():
+                        game_details = {
+                            'date': tournament_date,
+                            'tournament_name': tournament_name,
+                            'country': row['Unnamed: 4'],
+                            'player_name': playerName,
+                            'player_rating': player_rating,
+                            'player_color': retrievedColors[colorIndex],
+                            'opponent_name': row['Unnamed: 0'],  
+                            'opponent_rating': row['Unnamed: 3'],  
+                            'result': row['Unnamed: 5'], 
+                            'chg': row['Unnamed: 7'], 
+                            'k': row['Unnamed: 8'], 
+                            'k_chg': row['Unnamed: 9'], 
+                        }
+                        gameDf = pd.concat([gameDf, pd.DataFrame([game_details])], ignore_index=True)
+                        gameDf.dropna(inplace=True)
+                        gameDf.reset_index(inplace=True, drop=True)
+                        colorIndex += 1
+        except:
+            pass
                 
     
     if len(gameDf) > 0:
