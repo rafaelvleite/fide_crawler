@@ -172,13 +172,18 @@ def scrapePlayerGamesHistory(fide_id, playerName, startingPeriod, endPeriod, pro
                 
                 # Iterar sobre cada jogo no torneio
                 for _, row in localDf.iterrows():
+                    if colorIndex < len(retrievedColors):
+                        player_color = retrievedColors[colorIndex]
+                    else:
+                        player_color = 'white'  
+
                     game_details = {
                         'date': tournament_date,
                         'tournament_name': tournament_name,
                         'country': row['Unnamed: 4'],
                         'player_name': playerName,
                         'player_rating': player_rating,
-                        'player_color': retrievedColors[colorIndex],
+                        'player_color': player_color,
                         'opponent_name': row['Unnamed: 0'],  
                         'opponent_rating': row['Unnamed: 3'],  
                         'result': row['Unnamed: 5'], 
