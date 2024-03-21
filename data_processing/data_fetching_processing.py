@@ -182,7 +182,7 @@ def scrapePlayerGamesHistory(fide_id, playerName, startingPeriod, endPeriod, pro
                             'player_color': retrievedColors[colorIndex],
                             'opponent_name': row['Unnamed: 0'],  
                             'opponent_rating': row['Unnamed: 3'],  
-                            'result': row['Unnamed: 5'], 
+                            'result': int(row['Unnamed: 5']), 
                             'chg': row['Unnamed: 7'], 
                             'k': row['Unnamed: 8'], 
                             'k_chg': row['Unnamed: 9'], 
